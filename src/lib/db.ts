@@ -78,6 +78,8 @@ export interface SiteSettings {
   heroMiniBadge2Icon?: string;
   heroMiniBadge2Title?: string;
   heroMiniBadge2Text?: string;
+  heroProductId?: string; // Showcase product on top of homepage
+  heroCustomImageUrl?: string; // Override image for hero
 
   // Catalog Section
   catalogBadgeIcon?: string;
@@ -167,6 +169,7 @@ export interface Product {
   inStock?: boolean; // Opsiyonel
   showStock?: boolean; // Stok durumu sitede belirtilsin mi?
   featured: boolean;
+  showOnHomepage?: boolean; // Ana sayfada/katalogda gosterilsin mi?
   badge?: string;
 }
 
@@ -337,6 +340,31 @@ export function createCategory(name: string): Category {
   db.categories.push(newCat);
   saveDatabase(db);
   return newCat;
+}
+
+export function deleteCategory(id: string): { success: boolean; error?: string } {
+  const db = getDatabase();
+  if (id === 'all') {
+    return { success: false, error: 'Tüm Peluşlar ana sekmesi silinemez.' };
+  }
+
+  // Check if any product is using this category
+  const assignedProducts = db.products.filter(p => p.category === id);
+  if (assignedProducts.length > 0) {
+    return {
+      success: false,
+      error: `Bu kategoride ${assignedProducts.length} adet ürün bulunmaktadır. Silmek için önce bu ürünlerin kategorisini değiştirin veya ürünleri silin.`
+    };
+  }
+
+  const initialLength = db.categories.length;
+  db.categories = db.categories.filter(c => c.id !== id);
+  if (db.categories.length !== initialLength) {
+    saveDatabase(db);
+    return { success: true };
+  }
+
+  return { success: false, error: 'Kategori bulunamadı.' };
 }
 
 // Messages

@@ -1,14 +1,19 @@
 'use client';
 
 import React from 'react';
-import { SiteSettings } from '@/lib/db';
+import { SiteSettings, Product } from '@/lib/db';
 import { ArrowRight, Sparkles, ShieldCheck, HeartHandshake, PackageCheck, Award } from 'lucide-react';
 
 interface HeroProps {
   settings: SiteSettings;
+  heroProduct?: Product | null;
 }
 
-export default function Hero({ settings }: HeroProps) {
+export default function Hero({ settings, heroProduct }: HeroProps) {
+  const displayImage = heroProduct?.image || settings.heroCustomImageUrl || "https://images.unsplash.com/photo-1559454403-b8fb88521f11?w=800&auto=format&fit=crop&q=80";
+  const displayAlt = heroProduct?.name || "Lumy Toys Dev Peluş Ayıcık";
+  const displayBadge1 = heroProduct?.badge || settings.heroImgBadge1 || (heroProduct ? heroProduct.name : '👑 120 cm Dev Sarılma Ayısı');
+  const displayBadge2 = heroProduct?.price ? `₺${heroProduct.price}` : (settings.heroImgBadge2 || 'Toptan & Perakende');
   return (
     <section className="relative overflow-hidden pt-8 pb-16 lg:pt-14 lg:pb-24 bg-gradient-to-b from-amber-50/50 via-white to-orange-50/30">
       {/* Decorative Pastel Background Blobs */}
@@ -91,15 +96,15 @@ export default function Hero({ settings }: HeroProps) {
               <div className="relative z-10 bg-white p-3 sm:p-4 rounded-4xl shadow-2xl border border-amber-100 overflow-hidden transform hover:-rotate-1 transition-transform duration-500">
                 <div className="relative h-80 sm:h-96 w-full rounded-3xl overflow-hidden bg-amber-50">
                   <img
-                    src="https://images.unsplash.com/photo-1559454403-b8fb88521f11?w=800&auto=format&fit=crop&q=80"
-                    alt="Lumy Toys Dev Peluş Ayıcık"
+                    src={displayImage}
+                    alt={displayAlt}
                     className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
                   />
                   <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-3.5 py-1.5 rounded-full text-xs font-black text-amber-900 shadow-sm flex items-center gap-1.5">
-                    <span>{settings.heroImgBadge1 || '👑 120 cm Dev Sarılma Ayısı'}</span>
+                    <span>{displayBadge1}</span>
                   </div>
                   <div className="absolute bottom-4 right-4 bg-emerald-600 text-white px-3.5 py-1.5 rounded-full text-xs font-bold shadow-md">
-                    {settings.heroImgBadge2 || 'Toptan & Perakende'}
+                    {displayBadge2}
                   </div>
                 </div>
               </div>

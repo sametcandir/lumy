@@ -23,7 +23,7 @@
     "heroTrust2Text": "%100 Antialerjik Dolgu",
     "heroTrust3Icon": "📦",
     "heroTrust3Text": "Hızlı & Güvenli Teslimat",
-    "heroImgBadge1": "👑 120 cm Dev Sarılma Ayısı",
+    "heroImgBadge1": "En Çok Satan",
     "heroImgBadge2": "Toptan & Perakende",
     "heroMiniBadge1Icon": "✨",
     "heroMiniBadge1Title": "Güven Standartı",
@@ -169,7 +169,8 @@
       "smtpUser": "",
       "smtpPass": ""
     },
-    "logoUrl": ""
+    "logoUrl": "",
+    "heroProductId": "prod-1"
   },
   "categories": [
     {
@@ -195,10 +196,6 @@
     {
       "id": "anahtarlik",
       "name": "Çanta & Anahtarlık Peluşlar"
-    },
-    {
-      "id": "frn",
-      "name": "frn"
     }
   ],
   "products": [
@@ -211,8 +208,9 @@
       "image": "https://images.unsplash.com/photo-1559454403-b8fb88521f11?w=800&auto=format&fit=crop&q=80",
       "description": "120 cm boyunda ekstra yumuşak peluş kumaş, içi 1. sınıf boncuk elyaf dolgulu dev boy hediye ve vitrin ayısı. Sevimli kırmızı kadife kalbiyle en çok satan modelimiz.",
       "inStock": true,
-      "featured": true,
-      "badge": "En Çok Satan"
+      "featured": false,
+      "badge": "En Çok Satan",
+      "showStock": false
     },
     {
       "id": "prod-2",

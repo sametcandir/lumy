@@ -18,13 +18,18 @@ export default function HomePage() {
   const products = getProducts();
   const categories = getCategories();
 
+  // Find featured hero product if configured
+  const heroProduct = settings.heroProductId
+    ? products.find((p) => p.id === settings.heroProductId) || null
+    : null;
+
   return (
     <main className="min-h-screen flex flex-col bg-[#FFFDF9]">
       {/* Navigation */}
       <Navbar settings={settings} />
 
       {/* Hero Welcome */}
-      <Hero settings={settings} />
+      <Hero settings={settings} heroProduct={heroProduct} />
 
       {/* Wholesale & Supplier Highlights */}
       <WholesaleBanner settings={settings} />

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Product, Category, SiteSettings } from '@/lib/db';
 import { formatWhatsAppPhone } from '@/lib/whatsapp';
 import { Search, MessageCircle, Eye, Sparkles, Check, X, ArrowRight, ShieldCheck, Heart } from 'lucide-react';
@@ -18,16 +18,36 @@ export default function ProductCatalog({ products, categories, settings }: Produ
 
   const cleanPhone = formatWhatsAppPhone(settings.contact?.whatsapp);
 
+  // Filter products: only products intended to be shown on the homepage
+  const visibleProducts = useMemo(() => {
+    return products.filter((p) => p.showOnHomepage !== false);
+  }, [products]);
+
+  // Filter categories: only show categories that contain at least 1 visible product (plus 'all')
+  const activeCategories = useMemo(() => {
+    return categories.filter((cat) => {
+      if (cat.id === 'all') return true;
+      return visibleProducts.some((p) => p.category === cat.id);
+    });
+  }, [categories, visibleProducts]);
+
+  // Reset category to 'all' if the selected category has no visible products
+  useEffect(() => {
+    if (selectedCategory !== 'all' && !activeCategories.some((c) => c.id === selectedCategory)) {
+      setSelectedCategory('all');
+    }
+  }, [activeCategories, selectedCategory]);
+
   // Filter products based on category and search query
   const filteredProducts = useMemo(() => {
-    return products.filter((item) => {
+    return visibleProducts.filter((item) => {
       const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
       const matchesSearch =
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [products, selectedCategory, searchQuery]);
+  }, [visibleProducts, selectedCategory, searchQuery]);
 
   const handleWhatsAppOrder = (product: Product, isWholesale: boolean = false) => {
     let text = '';
@@ -88,7 +108,7 @@ export default function ProductCatalog({ products, categories, settings }: Produ
 
           {/* Category Pills */}
           <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-            {categories.map((cat) => {
+            {activeCategories.map((cat) => {
               const isActive = selectedCategory === cat.id;
               return (
                 <button

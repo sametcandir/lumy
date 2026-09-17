@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getCategories, createCategory } from '@/lib/db';
+import { getCategories, createCategory, deleteCategory } from '@/lib/db';
 
 export async function GET() {
   try {
@@ -18,6 +18,23 @@ export async function POST(request: Request) {
     }
     const newCat = createCategory(body.name);
     return NextResponse.json({ success: true, data: newCat }, { status: 201 });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'Kategori ID gereklidir' }, { status: 400 });
+    }
+    const result = deleteCategory(id);
+    if (!result.success) {
+      return NextResponse.json({ success: false, error: result.error }, { status: 400 });
+    }
+    return NextResponse.json({ success: true, message: 'Kategori başarıyla silindi' });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
