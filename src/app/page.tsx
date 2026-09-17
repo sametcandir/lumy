@@ -13,10 +13,10 @@ import Footer from '@/components/Footer';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export default function HomePage() {
-  const settings = getSettings();
-  const products = getProducts();
-  const categories = getCategories();
+export default async function HomePage() {
+  const settings = await getSettings();
+  const products = await getProducts();
+  const categories = await getCategories();
 
   // Find featured hero product if configured
   const heroProduct = settings.heroProductId

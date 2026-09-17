@@ -4,7 +4,7 @@ import { sendNotificationEmail } from '@/lib/mail';
 
 export async function GET() {
   try {
-    const messages = getMessages();
+    const messages = await getMessages();
     return NextResponse.json({ success: true, data: messages });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const newMessage = createMessage({
+    const newMessage = await createMessage({
       name: body.name,
       company: body.company || '',
       email: body.email || '',
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
 
     // Send email notification to configured email asynchronously
     try {
-      const settings = getSettings();
+      const settings = await getSettings();
       sendNotificationEmail(settings, newMessage).catch(err => {
         console.error('Async mail sending error:', err);
       });

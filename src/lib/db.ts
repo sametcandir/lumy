@@ -196,6 +196,10 @@ export interface DatabaseSchema {
 
 let memoryDb: DatabaseSchema | null = null;
 
+const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+const KV_KEY = 'lumy_db';
+
 function getDbFilePath(): string {
   if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
     const tmpPath = path.join('/tmp', 'db.json');
@@ -215,7 +219,28 @@ function getDbFilePath(): string {
   return path.join(process.cwd(), 'data', 'db.json');
 }
 
-export function getDatabase(): DatabaseSchema {
+export async function getDatabase(): Promise<DatabaseSchema> {
+  // 1. If Vercel KV / Upstash credentials exist, fetch from cloud database
+  if (KV_URL && KV_TOKEN) {
+    try {
+      const res = await fetch(`${KV_URL}/get/${KV_KEY}`, {
+        headers: { Authorization: `Bearer ${KV_TOKEN}` },
+        cache: 'no-store'
+      });
+      const json = await res.json();
+      if (json && json.result) {
+        const parsed = typeof json.result === 'string' ? JSON.parse(json.result) : json.result;
+        if (parsed && parsed.settings && parsed.products) {
+          memoryDb = parsed as DatabaseSchema;
+          return memoryDb;
+        }
+      }
+    } catch (kvErr) {
+      console.warn('Failed reading from KV cloud, falling back to local file:', kvErr);
+    }
+  }
+
+  // 2. Fallback to local file / memory
   try {
     const filePath = getDbFilePath();
     if (fs.existsSync(filePath)) {
@@ -238,8 +263,26 @@ export function getDatabase(): DatabaseSchema {
   }
 }
 
-export function saveDatabase(db: DatabaseSchema): void {
+export async function saveDatabase(db: DatabaseSchema): Promise<void> {
   memoryDb = db;
+
+  // 1. If Vercel KV / Upstash credentials exist, persist to cloud database
+  if (KV_URL && KV_TOKEN) {
+    try {
+      await fetch(`${KV_URL}/set/${KV_KEY}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${KV_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(db)
+      });
+    } catch (kvErr) {
+      console.error('Failed saving to KV cloud:', kvErr);
+    }
+  }
+
+  // 2. Also persist to local file / /tmp as secondary backup
   try {
     const filePath = getDbFilePath();
     const dir = path.dirname(filePath);
@@ -253,74 +296,74 @@ export function saveDatabase(db: DatabaseSchema): void {
       const tmpPath = path.join('/tmp', 'db.json');
       fs.writeFileSync(tmpPath, JSON.stringify(db, null, 2), 'utf-8');
     } catch (e) {
-      console.error('Failed to write to /tmp as well, data maintained in memory:', e);
+      // Ignored in read-only environment
     }
   }
 }
 
 // Site Settings
-export function getSettings(): SiteSettings {
-  const db = getDatabase();
+export async function getSettings(): Promise<SiteSettings> {
+  const db = await getDatabase();
   return db.settings;
 }
 
-export function updateSettings(newSettings: Partial<SiteSettings>): SiteSettings {
-  const db = getDatabase();
+export async function updateSettings(newSettings: Partial<SiteSettings>): Promise<SiteSettings> {
+  const db = await getDatabase();
   db.settings = { ...db.settings, ...newSettings };
-  saveDatabase(db);
+  await saveDatabase(db);
   return db.settings;
 }
 
 // Products
-export function getProducts(): Product[] {
-  const db = getDatabase();
+export async function getProducts(): Promise<Product[]> {
+  const db = await getDatabase();
   return db.products;
 }
 
-export function getProduct(id: string): Product | undefined {
-  const db = getDatabase();
+export async function getProduct(id: string): Promise<Product | undefined> {
+  const db = await getDatabase();
   return db.products.find(p => p.id === id);
 }
 
-export function createProduct(data: Omit<Product, 'id'>): Product {
-  const db = getDatabase();
+export async function createProduct(data: Omit<Product, 'id'>): Promise<Product> {
+  const db = await getDatabase();
   const newProduct: Product = {
     ...data,
     id: `prod-${Date.now()}`
   };
   db.products.unshift(newProduct);
-  saveDatabase(db);
+  await saveDatabase(db);
   return newProduct;
 }
 
-export function updateProduct(id: string, data: Partial<Omit<Product, 'id'>>): Product | null {
-  const db = getDatabase();
+export async function updateProduct(id: string, data: Partial<Omit<Product, 'id'>>): Promise<Product | null> {
+  const db = await getDatabase();
   const index = db.products.findIndex(p => p.id === id);
   if (index === -1) return null;
   db.products[index] = { ...db.products[index], ...data };
-  saveDatabase(db);
+  await saveDatabase(db);
   return db.products[index];
 }
 
-export function deleteProduct(id: string): boolean {
-  const db = getDatabase();
+export async function deleteProduct(id: string): Promise<boolean> {
+  const db = await getDatabase();
   const initialLength = db.products.length;
   db.products = db.products.filter(p => p.id !== id);
   if (db.products.length !== initialLength) {
-    saveDatabase(db);
+    await saveDatabase(db);
     return true;
   }
   return false;
 }
 
 // Categories
-export function getCategories(): Category[] {
-  const db = getDatabase();
+export async function getCategories(): Promise<Category[]> {
+  const db = await getDatabase();
   return db.categories;
 }
 
-export function createCategory(name: string): Category {
-  const db = getDatabase();
+export async function createCategory(name: string): Promise<Category> {
+  const db = await getDatabase();
   const trimmed = name.trim();
   const slug = trimmed
     .toLowerCase()
@@ -338,12 +381,12 @@ export function createCategory(name: string): Category {
     name: trimmed
   };
   db.categories.push(newCat);
-  saveDatabase(db);
+  await saveDatabase(db);
   return newCat;
 }
 
-export function deleteCategory(id: string): { success: boolean; error?: string } {
-  const db = getDatabase();
+export async function deleteCategory(id: string): Promise<{ success: boolean; error?: string }> {
+  const db = await getDatabase();
   if (id === 'all') {
     return { success: false, error: 'Tüm Peluşlar ana sekmesi silinemez.' };
   }
@@ -360,7 +403,7 @@ export function deleteCategory(id: string): { success: boolean; error?: string }
   const initialLength = db.categories.length;
   db.categories = db.categories.filter(c => c.id !== id);
   if (db.categories.length !== initialLength) {
-    saveDatabase(db);
+    await saveDatabase(db);
     return { success: true };
   }
 
@@ -368,13 +411,13 @@ export function deleteCategory(id: string): { success: boolean; error?: string }
 }
 
 // Messages
-export function getMessages(): UserMessage[] {
-  const db = getDatabase();
+export async function getMessages(): Promise<UserMessage[]> {
+  const db = await getDatabase();
   return db.messages;
 }
 
-export function createMessage(data: Omit<UserMessage, 'id' | 'date' | 'status'>): UserMessage {
-  const db = getDatabase();
+export async function createMessage(data: Omit<UserMessage, 'id' | 'date' | 'status'>): Promise<UserMessage> {
+  const db = await getDatabase();
   const now = new Date();
   const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
   
@@ -385,25 +428,25 @@ export function createMessage(data: Omit<UserMessage, 'id' | 'date' | 'status'>)
     status: 'unread'
   };
   db.messages.unshift(newMessage);
-  saveDatabase(db);
+  await saveDatabase(db);
   return newMessage;
 }
 
-export function markMessageStatus(id: string, status: 'read' | 'unread'): boolean {
-  const db = getDatabase();
+export async function markMessageStatus(id: string, status: 'read' | 'unread'): Promise<boolean> {
+  const db = await getDatabase();
   const msg = db.messages.find(m => m.id === id);
   if (!msg) return false;
   msg.status = status;
-  saveDatabase(db);
+  await saveDatabase(db);
   return true;
 }
 
-export function deleteMessage(id: string): boolean {
-  const db = getDatabase();
+export async function deleteMessage(id: string): Promise<boolean> {
+  const db = await getDatabase();
   const initialLength = db.messages.length;
   db.messages = db.messages.filter(m => m.id !== id);
   if (db.messages.length !== initialLength) {
-    saveDatabase(db);
+    await saveDatabase(db);
     return true;
   }
   return false;

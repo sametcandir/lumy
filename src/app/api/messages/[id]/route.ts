@@ -8,7 +8,7 @@ export async function PATCH(
   try {
     const body = await request.json();
     const status = body.status === 'unread' ? 'unread' : 'read';
-    const success = markMessageStatus(params.id, status);
+    const success = await markMessageStatus(params.id, status);
 
     if (!success) {
       return NextResponse.json({ success: false, error: 'Mesaj bulunamadı' }, { status: 404 });
@@ -25,7 +25,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const success = deleteMessage(params.id);
+    const success = await deleteMessage(params.id);
     if (!success) {
       return NextResponse.json({ success: false, error: 'Mesaj bulunamadı' }, { status: 404 });
     }

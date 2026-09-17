@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const product = getProduct(params.id);
+    const product = await getProduct(params.id);
     if (!product) {
       return NextResponse.json({ success: false, error: 'Ürün bulunamadı' }, { status: 404 });
     }
@@ -22,7 +22,7 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const updated = updateProduct(params.id, {
+    const updated = await updateProduct(params.id, {
       ...(body.name !== undefined && { name: body.name }),
       ...(body.category !== undefined && { category: body.category }),
       ...(body.price !== undefined && { price: body.price === null || body.price === '' ? null : Number(body.price) }),
@@ -32,6 +32,7 @@ export async function PUT(
       ...(body.inStock !== undefined && { inStock: Boolean(body.inStock) }),
       ...(body.showStock !== undefined && { showStock: Boolean(body.showStock) }),
       ...(body.featured !== undefined && { featured: Boolean(body.featured) }),
+      ...(body.showOnHomepage !== undefined && { showOnHomepage: Boolean(body.showOnHomepage) }),
       ...(body.badge !== undefined && { badge: body.badge }),
     });
 
@@ -50,7 +51,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const deleted = deleteProduct(params.id);
+    const deleted = await deleteProduct(params.id);
     if (!deleted) {
       return NextResponse.json({ success: false, error: 'Ürün bulunamadı' }, { status: 404 });
     }

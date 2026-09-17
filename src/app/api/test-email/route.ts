@@ -4,7 +4,7 @@ import { sendNotificationEmail } from '@/lib/mail';
 
 export async function POST() {
   try {
-    const settings = getSettings();
+    const settings = await getSettings();
     const config = settings.emailNotification;
 
     if (!config || !config.recipientEmail) {

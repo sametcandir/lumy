@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const category = searchParams.get('category');
     const featured = searchParams.get('featured');
 
-    let products = getProducts();
+    let products = await getProducts();
 
     if (category && category !== 'all') {
       products = products.filter(p => p.category === category);
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     const parsedPrice = body.price !== undefined && body.price !== null && body.price !== '' ? Number(body.price) : null;
     const parsedWholesaleMin = body.wholesaleMin !== undefined && body.wholesaleMin !== null && body.wholesaleMin !== '' ? Number(body.wholesaleMin) : null;
 
-    const newProduct = createProduct({
+    const newProduct = await createProduct({
       name: body.name,
       category: body.category,
       price: parsedPrice,
@@ -44,6 +44,7 @@ export async function POST(request: Request) {
       inStock: body.inStock !== false,
       showStock: body.showStock !== false,
       featured: Boolean(body.featured),
+      showOnHomepage: body.showOnHomepage !== undefined ? Boolean(body.showOnHomepage) : true,
       badge: body.badge || ''
     });
 

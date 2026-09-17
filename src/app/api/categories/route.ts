@@ -3,7 +3,7 @@ import { getCategories, createCategory, deleteCategory } from '@/lib/db';
 
 export async function GET() {
   try {
-    const categories = getCategories();
+    const categories = await getCategories();
     return NextResponse.json({ success: true, data: categories });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     if (!body.name || !body.name.trim()) {
       return NextResponse.json({ success: false, error: 'Kategori adı zorunludur' }, { status: 400 });
     }
-    const newCat = createCategory(body.name);
+    const newCat = await createCategory(body.name);
     return NextResponse.json({ success: true, data: newCat }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -30,7 +30,7 @@ export async function DELETE(request: Request) {
     if (!id) {
       return NextResponse.json({ success: false, error: 'Kategori ID gereklidir' }, { status: 400 });
     }
-    const result = deleteCategory(id);
+    const result = await deleteCategory(id);
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 400 });
     }
