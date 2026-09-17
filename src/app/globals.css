@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-[#FFFDF9] text-gray-800 antialiased selection:bg-plush-200 selection:text-plush-900;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+}
+
+/* Cute & Soft Styles */
+.soft-card {
+  @apply bg-white rounded-3xl border border-amber-100 shadow-soft transition-all duration-300;
+}
+
+.soft-card:hover {
+  @apply shadow-float -translate-y-1.5 border-plush-300;
+}
+
+.plush-gradient {
+  background: linear-gradient(135deg, #FFF9F2 0%, #FFF2E2 50%, #FEE8D1 100%);
+}
+
+.plush-badge {
+  @apply inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide uppercase;
+}
+
+.badge-sweet {
+  @apply bg-plush-100 text-plush-700 border border-plush-200;
+}
+
+.badge-wholesale {
+  @apply bg-emerald-50 text-emerald-700 border border-emerald-200;
+}
+
+.badge-popular {
+  @apply bg-pink-100 text-pink-700 border border-pink-200;
+}
+
+/* Custom Cute Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #fffbf5;
+}
+::-webkit-scrollbar-thumb {
+  background: #fcd5a5;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #f6841e;
+}
