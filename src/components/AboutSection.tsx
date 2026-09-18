@@ -55,12 +55,12 @@ export default function AboutSection({ settings }: AboutSectionProps) {
 
             <p className="text-base sm:text-lg text-gray-600 font-normal leading-relaxed">
               {settings.aboutText1 ||
-                'Lumy Toys, çocukların hayal gücünü beslemek ve yetişkinlerin içindeki çocuğu sevindirmek amacıyla en kaliteli peluş oyuncakları üretmek ve tedarik etmek için kuruldu.'}
+                'Lumy Toys, çocukların hayal gücünü beslemek ve yetişkinlerin içindeki çocuğu sevindirmek amacıyla en kaliteli ve sevimli peluş oyuncakları sunmak için kuruldu.'}
             </p>
 
             <p className="text-base text-gray-600 font-normal leading-relaxed">
               {settings.aboutText2 ||
-                'Her bir dikişinde sevgi, her dokunuşunda güven taşıyan ürünlerimiz; Avrupa standartlarında (EN-71) antialerjik kumaş ve %100 boncuk elyaf dolgu ile üretilir. Toptan tedarik ortaklarımız ve binlerce mutlu müşterimizle Türkiye’nin dört bir yanına mutluluk ulaştırıyoruz.'}
+                'Her bir dikişinde sevgi, her dokunuşunda güven taşıyan ürünlerimiz; Avrupa standartlarında (EN-71) antialerjik kumaş ve %100 boncuk elyaf dolgu ile üretilir. Binlerce mutlu müşterimizle Türkiye’nin dört bir yanına mutluluk ulaştırıyoruz.'}
             </p>
 
             {/* Quality Badges List */}
@@ -69,7 +69,7 @@ export default function AboutSection({ settings }: AboutSectionProps) {
                 { id: 'q1', icon: '🛡️', title: 'EN-71 Çocuk Güvenliği', description: 'Toksik olmayan boyalar ve kimyasallar.' },
                 { id: 'q2', icon: '✨', title: 'Kopmaz Nakış & Kilit', description: 'Bebekler için tam korumalı emniyet kilitleri.' },
                 { id: 'q3', icon: '🧸', title: 'Yıkanabilir & Tüy Dökmez', description: '30° hassas yıkamada formunu koruyan doku.' },
-                { id: 'q4', icon: '🏭', title: 'Yerli Üretim & Hızlı Tedarik', description: 'Stoktan aynı gün kargo veya sevkiyat.' }
+                { id: 'q4', icon: '📦', title: 'Özenli Paketleme & Hızlı Teslimat', description: 'Sevgiyle paketlenen peluşlar hızla kapınızda.' }
               ]).map((feat, idx) => (
                 <div key={feat.id || idx} className="flex items-start gap-3 bg-white p-3.5 rounded-2xl border border-amber-100 shadow-sm">
                   <span className="text-xl shrink-0 mt-0.5">{feat.icon || '🛡️'}</span>

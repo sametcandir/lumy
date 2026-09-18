@@ -13,7 +13,7 @@ export default function Hero({ settings, heroProduct }: HeroProps) {
   const displayImage = heroProduct?.image || settings.heroCustomImageUrl || "https://images.unsplash.com/photo-1559454403-b8fb88521f11?w=800&auto=format&fit=crop&q=80";
   const displayAlt = heroProduct?.name || "Lumy Toys Dev Peluş Ayıcık";
   const displayBadge1 = heroProduct?.badge || settings.heroImgBadge1 || (heroProduct ? heroProduct.name : '👑 120 cm Dev Sarılma Ayısı');
-  const displayBadge2 = heroProduct?.price ? `₺${heroProduct.price}` : (settings.heroImgBadge2 || 'Toptan & Perakende');
+  const displayBadge2 = settings.heroImgBadge2 || 'Özel Tasarım';
   return (
     <section className="relative overflow-hidden pt-8 pb-16 lg:pt-14 lg:pb-24 bg-gradient-to-b from-amber-50/50 via-white to-orange-50/30">
       {/* Decorative Pastel Background Blobs */}
@@ -36,20 +36,20 @@ export default function Hero({ settings, heroProduct }: HeroProps) {
 
             <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed">
               {settings.heroSubtitle ||
-                'Lumy Toys olarak 1. sınıf antialerjik kumaşlar ve CE güvenlik sertifikalı dolgularla hem perakende müşterilerimize hem de toptan tedarikçilerimize en sevimli peluş oyuncakları sunuyoruz.'}
+                'Lumy Toys olarak 1. sınıf antialerjik kumaşlar ve CE güvenlik sertifikalı dolgularla tüm peluş severlere en sevimli peluş oyuncakları sunuyoruz.'}
             </p>
 
-            {/* Wholesale & Retail Badges (Mobile Responsive Compact Card) */}
+            {/* Quality & Softness Highlight Card */}
             <div className="bg-white/90 backdrop-blur-sm border border-amber-200/80 rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 max-w-xl mx-auto lg:mx-0 shadow-sm flex flex-row items-center gap-3.5 text-left">
               <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 text-xl sm:text-2xl shadow-xs">
-                {settings.heroWholesaleIcon || '📦'}
+                {settings.heroWholesaleIcon || '🧸'}
               </div>
               <div className="text-xs sm:text-sm">
                 <strong className="block text-gray-900 font-bold text-xs sm:text-sm">
-                  {settings.heroWholesaleTitle || 'Mağazalar & E-Ticaret İçin Toptan Satış'}
+                  {settings.heroWholesaleTitle || 'Özenle Tasarlanmış Peluş Koleksiyonu'}
                 </strong>
                 <span className="text-gray-600 text-[11px] sm:text-xs block mt-0.5 leading-snug">
-                  {settings.heroWholesaleText || 'Yüksek kâr marjlı B2B fiyat listesi ve güvenli fabrika sevkiyatı.'}
+                  {settings.heroWholesaleText || '1. Sınıf antialerjik kumaş, %100 güvenli boncuk elyaf ve sevgi dolu detaylar.'}
                 </span>
               </div>
             </div>
@@ -65,10 +65,10 @@ export default function Hero({ settings, heroProduct }: HeroProps) {
               </a>
 
               <a
-                href="#toptan"
+                href="#iletisim"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white hover:bg-amber-50 text-gray-900 font-bold px-6 sm:px-7 py-3.5 sm:py-4 rounded-2xl border-2 border-amber-300 hover:border-amber-400 transition-all text-sm sm:text-base shadow-sm"
               >
-                <span>{settings.heroWholesaleBtnText || 'Toptan Fiyat Teklifi Al'}</span>
+                <span>{settings.heroWholesaleBtnText || 'Bize Ulaşın'}</span>
               </a>
             </div>
 
@@ -120,13 +120,13 @@ export default function Hero({ settings, heroProduct }: HeroProps) {
                 </div>
               </div>
 
-              {/* Floating Mini Badge 2: Wholesale Discount */}
-              <div className="absolute -top-6 -right-6 z-20 bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-4 rounded-3xl shadow-xl hidden sm:block">
+              {/* Floating Mini Badge 2: Quality Design */}
+              <div className="absolute -top-6 -right-6 z-20 bg-gradient-to-r from-amber-600 to-orange-600 text-white p-4 rounded-3xl shadow-xl hidden sm:block">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{settings.heroMiniBadge2Icon || '🏆'}</span>
-                  <span className="text-xs font-extrabold tracking-wider uppercase">{settings.heroMiniBadge2Title || 'Toptan Avantajı'}</span>
+                  <span className="text-xs font-extrabold tracking-wider uppercase">{settings.heroMiniBadge2Title || 'Sevgiyle Üretildi'}</span>
                 </div>
-                <div className="text-sm font-black mt-0.5">{settings.heroMiniBadge2Text || 'Özel Üretici İskontosu'}</div>
+                <div className="text-sm font-black mt-0.5">{settings.heroMiniBadge2Text || 'Özel Tasarım Peluşlar'}</div>
               </div>
             </div>
 

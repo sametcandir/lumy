@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Lumy Toys | Sevimli & Kaliteli Peluş Oyuncak Dünyası - Toptan ve Perakende',
-  description: 'Türkiye’nin en yumuşacık peluş oyuncakları! Mağazalar, tedarikçiler ve e-ticaret siteleri için avantajlı toptan fiyatlar ve perakende satış.',
-  keywords: ['peluş oyuncak', 'toptan peluş', 'teddy bear', 'peluş ayı', 'uyku arkadaşı', 'peluş toptancısı', 'Lumy Toys'],
+  title: 'Lumy Toys | Sevimli & Kaliteli Peluş Oyuncak Dünyası',
+  description: 'Türkiye’nin en yumuşacık ve sevimli peluş oyuncakları! Antialerjik kumaşlar, CE güvenlik sertifikalı dolgular ve zengin peluş koleksiyonu.',
+  keywords: ['peluş oyuncak', 'teddy bear', 'peluş ayı', 'uyku arkadaşı', 'peluş koleksiyonu', 'Lumy Toys'],
   authors: [{ name: 'Lumy Toys' }],
 };
 

@@ -2,7 +2,6 @@ import React from 'react';
 import { getSettings, getProducts, getCategories } from '@/lib/db';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
-import WholesaleBanner from '@/components/WholesaleBanner';
 import ProductCatalog from '@/components/ProductCatalog';
 import AboutSection from '@/components/AboutSection';
 import ContactSection from '@/components/ContactSection';
@@ -30,9 +29,6 @@ export default async function HomePage() {
 
       {/* Hero Welcome */}
       <Hero settings={settings} heroProduct={heroProduct} />
-
-      {/* Wholesale & Supplier Highlights */}
-      <WholesaleBanner settings={settings} />
 
       {/* Interactive Products Catalog */}
       <ProductCatalog products={products} categories={categories} settings={settings} />

@@ -34,12 +34,15 @@ export async function POST(request: Request) {
     const parsedPrice = body.price !== undefined && body.price !== null && body.price !== '' ? Number(body.price) : null;
     const parsedWholesaleMin = body.wholesaleMin !== undefined && body.wholesaleMin !== null && body.wholesaleMin !== '' ? Number(body.wholesaleMin) : null;
 
+    const images = Array.isArray(body.images) ? body.images : (body.image ? [body.image] : []);
+
     const newProduct = await createProduct({
       name: body.name,
       category: body.category,
       price: parsedPrice,
       wholesaleMin: parsedWholesaleMin,
-      image: body.image || 'https://images.unsplash.com/photo-1559454403-b8fb88521f11?w=800&auto=format&fit=crop&q=80',
+      image: images[0] || body.image || 'https://images.unsplash.com/photo-1559454403-b8fb88521f11?w=800&auto=format&fit=crop&q=80',
+      images: images,
       description: body.description || '',
       inStock: body.inStock !== false,
       showStock: body.showStock !== false,

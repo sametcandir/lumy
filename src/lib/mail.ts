@@ -15,12 +15,12 @@ export async function sendNotificationEmail(settings: SiteSettings, message: Use
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #fffdfa; border: 1px solid #fedfb2; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
       <div style="background: linear-gradient(135deg, #f6841e 0%, #db6512 100%); padding: 25px 20px; text-align: center; color: white;">
         <h1 style="margin: 0; font-size: 24px; font-weight: bold;">🧸 ${settings.brandName || 'Lumy Toys'}</h1>
-        <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">Yeni Web Sitesi İletişim / Teklif Bildirimi</p>
+        <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">Yeni Web Sitesi İletişim Mesajı</p>
       </div>
 
       <div style="padding: 25px 20px;">
-        <div style="display: inline-block; background: ${message.type === 'wholesale' ? '#d1fae5' : '#e0f2fe'}; color: ${message.type === 'wholesale' ? '#065f46' : '#0369a1'}; padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: bold; margin-bottom: 20px; text-transform: uppercase;">
-          ${message.type === 'wholesale' ? '📦 Toptan / Tedarikçi Talebi' : '🧸 Müşteri / Genel Soru'}
+        <div style="display: inline-block; background: #e0f2fe; color: #0369a1; padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: bold; margin-bottom: 20px; text-transform: uppercase;">
+          🧸 Yeni İletişim Mesajı
         </div>
 
         <table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 20px;">
@@ -75,7 +75,7 @@ export async function sendNotificationEmail(settings: SiteSettings, message: Use
       </div>
 
       <div style="background: #faf5ee; padding: 15px; text-align: center; font-size: 12px; color: #a8a29e; border-top: 1px solid #fedfb2;">
-        Bu e-posta Lumy Toys web sitesi teklif formu üzerinden otomatik olarak gönderilmiştir.
+        Bu e-posta Lumy Toys web sitesi iletişim formu üzerinden otomatik olarak gönderilmiştir.
       </div>
     </div>
   `;
@@ -112,7 +112,7 @@ export async function sendNotificationEmail(settings: SiteSettings, message: Use
       const info = await transporter.sendMail({
         from: `"${settings.brandName || 'Lumy Toys'}" <${config.smtpUser.trim()}>`,
         to: config.recipientEmail.trim(),
-        subject: `[${settings.brandName || 'Lumy Toys'}] ${message.type === 'wholesale' ? 'Yeni Toptan Teklif Talebi' : 'Yeni Müşteri Mesajı'} - ${message.name}`,
+        subject: `[${settings.brandName || 'Lumy Toys'}] Yeni İletişim Mesajı - ${message.name}`,
         html: htmlContent,
       });
 

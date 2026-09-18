@@ -117,7 +117,7 @@ export default function AdminDashboardPage() {
             { id: 'q1', icon: '🛡️', title: 'EN-71 Çocuk Güvenliği', description: 'Toksik olmayan boyalar ve kimyasallar.' },
             { id: 'q2', icon: '✨', title: 'Kopmaz Nakış & Kilit', description: 'Bebekler için tam korumalı emniyet kilitleri.' },
             { id: 'q3', icon: '🧸', title: 'Yıkanabilir & Tüy Dökmez', description: '30° hassas yıkamada formunu koruyan doku.' },
-            { id: 'q4', icon: '🏭', title: 'Yerli Üretim & Hızlı Tedarik', description: 'Stoktan aynı gün kargo veya sevkiyat.' }
+            { id: 'q4', icon: '⚡', title: 'Hızlı & Güvenli Teslimat', description: 'Siparişleriniz özenle paketlenir ve hızla ulaştırılır.' }
           ];
         }
         setSettings(s);
@@ -147,6 +147,7 @@ export default function AdminDashboardPage() {
       price: null,
       wholesaleMin: null,
       image: 'https://images.unsplash.com/photo-1559454403-b8fb88521f11?w=800&auto=format&fit=crop&q=80',
+      images: ['https://images.unsplash.com/photo-1559454403-b8fb88521f11?w=800&auto=format&fit=crop&q=80'],
       description: '',
       inStock: true,
       showStock: true,
@@ -159,13 +160,56 @@ export default function AdminDashboardPage() {
   };
 
   const openEditProductModal = (prod: Product) => {
-    setEditingProduct({ ...prod });
+    const imgs = (prod.images && prod.images.length > 0)
+      ? [...prod.images]
+      : (prod.image ? [prod.image] : ['https://images.unsplash.com/photo-1559454403-b8fb88521f11?w=800&auto=format&fit=crop&q=80']);
+    setEditingProduct({ ...prod, images: imgs });
     setIsAddingNewCategory(false);
     setNewCategoryInput('');
     setIsProductModalOpen(true);
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSlotUrlChange = (index: number, url: string) => {
+    if (!editingProduct) return;
+    const currentImages = editingProduct.images ? [...editingProduct.images] : (editingProduct.image ? [editingProduct.image] : []);
+    currentImages[index] = url;
+    setEditingProduct({
+      ...editingProduct,
+      images: currentImages,
+      image: currentImages[0] || url
+    });
+  };
+
+  const handleAddImageSlot = () => {
+    if (!editingProduct) return;
+    const currentImages = editingProduct.images ? [...editingProduct.images] : (editingProduct.image ? [editingProduct.image] : []);
+    if (currentImages.length >= 5) {
+      showStatus('error', 'Bir ürüne en fazla 5 adet görsel eklenebilir.');
+      return;
+    }
+    const updated = [...currentImages, ''];
+    setEditingProduct({
+      ...editingProduct,
+      images: updated
+    });
+  };
+
+  const handleRemoveImageSlot = (index: number) => {
+    if (!editingProduct) return;
+    const currentImages = editingProduct.images ? [...editingProduct.images] : (editingProduct.image ? [editingProduct.image] : []);
+    if (currentImages.length <= 1) {
+      showStatus('error', 'En az 1 adet görsel bulunmalıdır.');
+      return;
+    }
+    const updated = currentImages.filter((_, i) => i !== index);
+    setEditingProduct({
+      ...editingProduct,
+      images: updated,
+      image: updated[0] || ''
+    });
+  };
+
+  const handleImageUploadSlot = async (slotIndex: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -180,8 +224,17 @@ export default function AdminDashboardPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setEditingProduct(prev => prev ? { ...prev, image: data.url } : null);
-        showStatus('success', 'Ürün görseli başarıyla yüklendi!');
+        setEditingProduct(prev => {
+          if (!prev) return null;
+          const currentImages = prev.images ? [...prev.images] : (prev.image ? [prev.image] : []);
+          currentImages[slotIndex] = data.url;
+          return {
+            ...prev,
+            images: currentImages,
+            image: currentImages[0] || data.url
+          };
+        });
+        showStatus('success', `${slotIndex + 1}. ürün görseli yüklendi!`);
       } else {
         showStatus('error', data.error || 'Görsel yüklenemedi');
       }
@@ -306,7 +359,7 @@ export default function AdminDashboardPage() {
       heroProductId: newHeroId,
       ...(newHeroId && prod ? {
         heroImgBadge1: prod.badge || prod.name,
-        heroImgBadge2: prod.price ? `₺${prod.price}` : 'Toptan & Perakende'
+        heroImgBadge2: 'Öne Çıkan Peluş'
       } : {})
     };
 
@@ -663,7 +716,7 @@ export default function AdminDashboardPage() {
                   <div>
                     <h2 className="text-xl font-black text-gray-900">Peluş Oyuncak Kataloğu</h2>
                     <p className="text-xs text-gray-500 mt-0.5">
-                      Fiyat ve stok alanları opsiyoneldir; ister girin ister boş bırakın.
+                      Ürünlerinizi yönetin, fotoğraflar ve detaylar ekleyin.
                     </p>
                   </div>
 
@@ -765,7 +818,7 @@ export default function AdminDashboardPage() {
                                 </button>
                               )}
 
-                              {/* Show on Homepage Toggle */}
+                               {/* Show on Homepage Toggle */}
                               <button
                                 type="button"
                                 onClick={() => toggleProductHomepage(p)}
@@ -779,19 +832,9 @@ export default function AdminDashboardPage() {
                                 <span>{p.showOnHomepage !== false ? 'Yayında' : 'Gizli'}</span>
                               </button>
 
-                              {p.price ? (
-                                <span className="font-black text-gray-900 text-xs">₺{p.price}</span>
-                              ) : (
-                                <span className="text-amber-600 bg-amber-50 font-bold px-1.5 py-0.5 rounded border border-amber-200 text-[10px]">
-                                  Fiyat Sorunuz
-                                </span>
-                              )}
-
-                              {p.wholesaleMin && (
-                                <span className="text-gray-500 text-[10px] font-semibold">
-                                  Min. {p.wholesaleMin} ad.
-                                </span>
-                              )}
+                              <span className="text-gray-600 bg-stone-100 font-bold px-2 py-0.5 rounded text-[10px]">
+                                📷 {p.images?.length || (p.image ? 1 : 0)} Görsel
+                              </span>
 
                               {p.showStock === false ? (
                                 <span className="text-gray-400 text-[10px] italic">Stok Gizli</span>
@@ -829,10 +872,8 @@ export default function AdminDashboardPage() {
                     <table className="w-full text-left text-xs">
                       <thead className="bg-stone-50 border-b border-gray-200 text-gray-500 uppercase tracking-wider font-extrabold">
                         <tr>
-                          <th className="py-3.5 px-4">Görsel</th>
+                          <th className="py-3.5 px-4">Görseller</th>
                           <th className="py-3.5 px-4">Ürün Adı & Kategori</th>
-                          <th className="py-3.5 px-4">Perakende Fiyat</th>
-                          <th className="py-3.5 px-4">Min. Toptan</th>
                           <th className="py-3.5 px-4">Stok Durumu</th>
                           <th className="py-3.5 px-4">Ana Sayfa & Vitrin</th>
                           <th className="py-3.5 px-4">Rozet</th>
@@ -845,12 +886,17 @@ export default function AdminDashboardPage() {
                           .map((p) => (
                             <tr key={p.id} className="hover:bg-amber-50/40 transition-colors">
                               <td className="py-3 px-4">
-                                <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
-                                  <img
-                                    src={p.image}
-                                    alt={p.name}
-                                    className="w-full h-full object-cover"
-                                  />
+                                <div className="flex items-center gap-2">
+                                  <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
+                                    <img
+                                      src={p.image}
+                                      alt={p.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </div>
+                                  <span className="text-[10px] font-bold text-gray-600 bg-stone-100 px-2 py-1 rounded-lg">
+                                    📷 {p.images?.length || (p.image ? 1 : 0)} Görsel
+                                  </span>
                                 </div>
                               </td>
 
@@ -859,20 +905,6 @@ export default function AdminDashboardPage() {
                                 <div className="text-[11px] text-plush-600 font-semibold">
                                   {categories.find(c => c.id === p.category)?.name || p.category}
                                 </div>
-                              </td>
-
-                              <td className="py-3 px-4">
-                                {p.price ? (
-                                  <span className="font-black text-gray-900 text-sm">₺{p.price}</span>
-                                ) : (
-                                  <span className="text-amber-600 bg-amber-50 font-bold px-2 py-0.5 rounded border border-amber-200 text-[10px]">
-                                    Fiyat Sorunuz
-                                  </span>
-                                )}
-                              </td>
-
-                              <td className="py-3 px-4 font-bold text-gray-700">
-                                {p.wholesaleMin ? `${p.wholesaleMin} Adet` : <span className="text-gray-400 font-normal">-</span>}
                               </td>
 
                               <td className="py-3 px-4">
@@ -1087,7 +1119,7 @@ export default function AdminDashboardPage() {
                         type="text"
                         value={settings.badgeText || ''}
                         onChange={(e) => setSettings({ ...settings, badgeText: e.target.value })}
-                        placeholder="🧸 Türkiye'nin Sevilen Peluş Üreticisi & Toptancısı"
+                        placeholder="🧸 Türkiye'nin En Sevilen Peluş Dünyası"
                         className="w-full px-3.5 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-plush-400 focus:bg-white"
                       />
                     </div>
@@ -1109,9 +1141,9 @@ export default function AdminDashboardPage() {
                   <h3 className="text-sm font-black text-gray-900 uppercase tracking-wider flex items-center gap-2">
                     <span className="text-amber-500">🧭</span> Üst Gezinti Menüsü (Navbar) Yazıları
                   </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">1. Menü Adı</label>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">1. Menü Adı (Katalog)</label>
                       <input
                         type="text"
                         value={settings.navCatalog || ''}
@@ -1121,17 +1153,7 @@ export default function AdminDashboardPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">2. Menü Adı</label>
-                      <input
-                        type="text"
-                        value={settings.navWholesale || ''}
-                        onChange={(e) => setSettings({ ...settings, navWholesale: e.target.value })}
-                        placeholder="Toptan & Tedarik"
-                        className="w-full px-3 py-2 bg-stone-50 border border-gray-200 rounded-xl text-xs"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">3. Menü Adı</label>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">2. Menü Adı (Hakkımızda)</label>
                       <input
                         type="text"
                         value={settings.navAbout || ''}
@@ -1141,12 +1163,12 @@ export default function AdminDashboardPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">4. Menü Adı</label>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">3. Menü Adı (İletişim)</label>
                       <input
                         type="text"
                         value={settings.navContact || ''}
                         onChange={(e) => setSettings({ ...settings, navContact: e.target.value })}
-                        placeholder="İletişim & Teklif"
+                        placeholder="İletişim"
                         className="w-full px-3 py-2 bg-stone-50 border border-gray-200 rounded-xl text-xs"
                       />
                     </div>
@@ -1201,17 +1223,17 @@ export default function AdminDashboardPage() {
                     />
                   </div>
 
-                  {/* Hero Wholesale Box Customization */}
+                  {/* Hero Highlight Box Customization */}
                   <div className="p-4 bg-amber-50/60 rounded-2xl border border-amber-200 space-y-3">
-                    <span className="text-xs font-bold text-amber-950 block">📦 Karşılama Alanındaki Toptan Satış Kartı</span>
+                    <span className="text-xs font-bold text-amber-950 block">🧸 Karşılama Alanındaki Öne Çıkan Özellik Kartı</span>
                     <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                       <div>
                         <label className="block text-xs font-bold text-gray-700 mb-1">Kart İkonu / Emoji</label>
                         <input
                           type="text"
-                          value={settings.heroWholesaleIcon || '📦'}
+                          value={settings.heroWholesaleIcon || '🧸'}
                           onChange={(e) => setSettings({ ...settings, heroWholesaleIcon: e.target.value })}
-                          placeholder="📦"
+                          placeholder="🧸"
                           className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-center text-lg"
                         />
                       </div>
@@ -1221,7 +1243,7 @@ export default function AdminDashboardPage() {
                           type="text"
                           value={settings.heroWholesaleTitle || ''}
                           onChange={(e) => setSettings({ ...settings, heroWholesaleTitle: e.target.value })}
-                          placeholder="Mağazalar & E-Ticaret İçin Toptan Satış"
+                          placeholder="Özenle Tasarlanmış Peluş Koleksiyonu"
                           className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold"
                         />
                       </div>
@@ -1232,6 +1254,7 @@ export default function AdminDashboardPage() {
                         type="text"
                         value={settings.heroWholesaleText || ''}
                         onChange={(e) => setSettings({ ...settings, heroWholesaleText: e.target.value })}
+                        placeholder="1. Sınıf antialerjik kumaş, %100 güvenli boncuk elyaf ve sevgi dolu detaylar."
                         className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs"
                       />
                     </div>
@@ -1255,7 +1278,7 @@ export default function AdminDashboardPage() {
                         type="text"
                         value={settings.heroWholesaleBtnText || ''}
                         onChange={(e) => setSettings({ ...settings, heroWholesaleBtnText: e.target.value })}
-                        placeholder="Toptan Fiyat Teklifi Al"
+                        placeholder="Bize Ulaşın"
                         className="w-full px-3.5 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-plush-400 focus:bg-white font-bold"
                       />
                     </div>
@@ -1360,7 +1383,7 @@ export default function AdminDashboardPage() {
                               heroProductId: selId,
                               ...(prod ? {
                                 heroImgBadge1: prod.badge || prod.name,
-                                heroImgBadge2: prod.price ? `₺${prod.price}` : 'Toptan & Perakende'
+                                heroImgBadge2: 'Öne Çıkan Peluş'
                               } : {})
                             });
                           }}
@@ -1369,7 +1392,7 @@ export default function AdminDashboardPage() {
                           <option value="">-- Katalogdan Ürün Seçilmedi (Özel veya Varsayılan Görsel) --</option>
                           {products.map((p) => (
                             <option key={p.id} value={p.id}>
-                              👑 {p.name} {p.price ? `(₺${p.price})` : ''}
+                              👑 {p.name}
                             </option>
                           ))}
                         </select>
@@ -1431,7 +1454,7 @@ export default function AdminDashboardPage() {
                           type="text"
                           value={settings.heroImgBadge2 || ''}
                           onChange={(e) => setSettings({ ...settings, heroImgBadge2: e.target.value })}
-                          placeholder="Toptan & Perakende"
+                          placeholder="Sevimli & Yumuşacık"
                           className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs font-bold"
                         />
                       </div>
@@ -1479,7 +1502,7 @@ export default function AdminDashboardPage() {
                             type="text"
                             value={settings.heroMiniBadge2Title || ''}
                             onChange={(e) => setSettings({ ...settings, heroMiniBadge2Title: e.target.value })}
-                            placeholder="Toptan Avantajı"
+                            placeholder="Kalite Güvencesi"
                             className="flex-1 px-2 py-1 bg-stone-50 border border-gray-200 rounded text-xs font-bold"
                           />
                         </div>
@@ -1487,7 +1510,7 @@ export default function AdminDashboardPage() {
                           type="text"
                           value={settings.heroMiniBadge2Text || ''}
                           onChange={(e) => setSettings({ ...settings, heroMiniBadge2Text: e.target.value })}
-                          placeholder="Özel Üretici İskontosu"
+                          placeholder="1. Sınıf Peluş Kumaş"
                           className="w-full px-2 py-1 bg-stone-50 border border-gray-200 rounded text-xs"
                         />
                       </div>
@@ -1591,50 +1614,30 @@ export default function AdminDashboardPage() {
                   {/* Product Card Buttons and Status Texts */}
                   <div className="p-4 bg-stone-50 rounded-2xl border border-gray-200 space-y-3">
                     <span className="text-xs font-bold text-gray-900 block">Katalog Kartı Butonları & Durum Metinleri</span>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[11px] font-bold text-gray-600 mb-1">Resim İçi İncele Butonu</label>
+                        <label className="block text-[11px] font-bold text-gray-600 mb-1">Detayları İncele Butonu</label>
                         <input
                           type="text"
                           value={settings.catalogCardViewBtn || ''}
                           onChange={(e) => setSettings({ ...settings, catalogCardViewBtn: e.target.value })}
-                          placeholder="Detayları Gör"
+                          placeholder="Detayları İncele"
                           className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs font-bold"
                         />
                       </div>
                       <div>
-                        <label className="block text-[11px] font-bold text-gray-600 mb-1">Sipariş Ver Butonu</label>
+                        <label className="block text-[11px] font-bold text-gray-600 mb-1">WhatsApp Sipariş Butonu</label>
                         <input
                           type="text"
                           value={settings.catalogCardOrderBtn || ''}
                           onChange={(e) => setSettings({ ...settings, catalogCardOrderBtn: e.target.value })}
-                          placeholder="Sipariş Ver"
+                          placeholder="WhatsApp"
                           className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-emerald-700"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-gray-600 mb-1">Toptan Fiyat Butonu</label>
-                        <input
-                          type="text"
-                          value={settings.catalogCardWholesaleBtn || ''}
-                          onChange={(e) => setSettings({ ...settings, catalogCardWholesaleBtn: e.target.value })}
-                          placeholder="Toptan Fiyat"
-                          className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-plush-700"
                         />
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                      <div>
-                        <label className="block text-[11px] font-bold text-gray-600 mb-1">Fiyatsız Ürün Metni</label>
-                        <input
-                          type="text"
-                          value={settings.catalogNoPriceText || ''}
-                          onChange={(e) => setSettings({ ...settings, catalogNoPriceText: e.target.value })}
-                          placeholder="Fiyat Sorunuz"
-                          className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs"
-                        />
-                      </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                       <div>
                         <label className="block text-[11px] font-bold text-gray-600 mb-1">Stokta Var Metni</label>
                         <input
@@ -1659,161 +1662,10 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
 
-                {/* Section 3: Wholesale B2B Section */}
+                {/* Section 3: About Us */}
                 <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-xs space-y-4">
                   <h3 className="text-sm font-black text-gray-900 uppercase tracking-wider flex items-center gap-2">
-                    <span className="text-amber-500">📦</span> 3. Toptan Satış & Tedarikçi Bölümü
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">Rozet İkonu</label>
-                      <input
-                        type="text"
-                        value={settings.wholesaleBadgeIcon || '📦'}
-                        onChange={(e) => setSettings({ ...settings, wholesaleBadgeIcon: e.target.value })}
-                        placeholder="📦"
-                        className="w-full px-3 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs text-center text-lg"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">Bölüm Rozet Yazısı</label>
-                      <input
-                        type="text"
-                        value={settings.wholesaleBadge || ''}
-                        onChange={(e) => setSettings({ ...settings, wholesaleBadge: e.target.value })}
-                        placeholder="B2B & Tedarikçi Ortaklığı"
-                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs"
-                      />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label className="block text-xs font-bold text-gray-700 mb-1">Toptan Bölüm Başlığı</label>
-                      <input
-                        type="text"
-                        value={settings.wholesaleTitle || ''}
-                        onChange={(e) => setSettings({ ...settings, wholesaleTitle: e.target.value })}
-                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs font-bold"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1">Toptan Bölüm Alt Açıklaması</label>
-                    <textarea
-                      rows={2}
-                      value={settings.wholesaleSubtitle || ''}
-                      onChange={(e) => setSettings({ ...settings, wholesaleSubtitle: e.target.value })}
-                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs"
-                    />
-                  </div>
-
-                  {/* 4 Feature Cards with Icon & Title & Description */}
-                  <div className="pt-2">
-                    <h4 className="text-xs font-bold text-gray-700 mb-3">Tedarikçi Avantaj Kartları (4 Madde)</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {(settings.wholesaleFeatures || []).map((feat, index) => (
-                        <div key={feat.id || index} className="p-3.5 bg-stone-50 rounded-2xl border border-gray-200 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="text"
-                              value={feat.icon || '📦'}
-                              onChange={(e) => {
-                                const newFeatures = [...settings.wholesaleFeatures];
-                                newFeatures[index] = { ...newFeatures[index], icon: e.target.value };
-                                setSettings({ ...settings, wholesaleFeatures: newFeatures });
-                              }}
-                              className="w-10 px-1 py-1.5 bg-white border border-gray-200 rounded-lg text-center text-base"
-                              placeholder="📦"
-                            />
-                            <input
-                              type="text"
-                              value={feat.title}
-                              onChange={(e) => {
-                                const newFeatures = [...settings.wholesaleFeatures];
-                                newFeatures[index] = { ...newFeatures[index], title: e.target.value };
-                                setSettings({ ...settings, wholesaleFeatures: newFeatures });
-                              }}
-                              placeholder="Avantaj Başlığı"
-                              className="flex-1 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-bold"
-                            />
-                          </div>
-                          <textarea
-                            rows={2}
-                            value={feat.description}
-                            onChange={(e) => {
-                              const newFeatures = [...settings.wholesaleFeatures];
-                              newFeatures[index] = { ...newFeatures[index], description: e.target.value };
-                              setSettings({ ...settings, wholesaleFeatures: newFeatures });
-                            }}
-                            placeholder="Avantaj Açıklaması"
-                            className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Wholesale CTA Banner */}
-                  <div className="p-4 bg-stone-50 rounded-2xl border border-gray-200 space-y-3 mt-4">
-                    <span className="text-xs font-bold text-gray-900 block">Koyu Renkli Toptan Teklif Bannerı</span>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1">Banner Üst Rozet Metni</label>
-                        <input
-                          type="text"
-                          value={settings.wholesaleCtaBadge || ''}
-                          onChange={(e) => setSettings({ ...settings, wholesaleCtaBadge: e.target.value })}
-                          placeholder="Hemen Tedarikçi Olun"
-                          className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs"
-                        />
-                      </div>
-                      <div className="sm:col-span-2">
-                        <label className="block text-xs font-bold text-gray-700 mb-1">Banner Başlığı</label>
-                        <input
-                          type="text"
-                          value={settings.wholesaleCtaTitle || ''}
-                          onChange={(e) => setSettings({ ...settings, wholesaleCtaTitle: e.target.value })}
-                          placeholder="Toplu Alımlar İçin Güncel Fiyat Listesi..."
-                          className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">Banner Açıklaması</label>
-                      <textarea
-                        rows={2}
-                        value={settings.wholesaleCtaText || ''}
-                        onChange={(e) => setSettings({ ...settings, wholesaleCtaText: e.target.value })}
-                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs"
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1">1. Buton Yazısı (Turuncu)</label>
-                        <input
-                          type="text"
-                          value={settings.wholesaleBtn1Text || ''}
-                          onChange={(e) => setSettings({ ...settings, wholesaleBtn1Text: e.target.value })}
-                          placeholder="Teklif Formunu Doldur"
-                          className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1">2. Buton Yazısı (Yeşil)</label>
-                        <input
-                          type="text"
-                          value={settings.wholesaleBtn2Text || ''}
-                          onChange={(e) => setSettings({ ...settings, wholesaleBtn2Text: e.target.value })}
-                          placeholder="Toptan Satış Temsilcisi"
-                          className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section 4: About Us */}
-                <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-xs space-y-4">
-                  <h3 className="text-sm font-black text-gray-900 uppercase tracking-wider flex items-center gap-2">
-                    <span className="text-amber-500">💖</span> 4. Hakkımızda Bölümü
+                    <span className="text-amber-500">💖</span> 3. Hakkımızda Bölümü
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                     <div>
@@ -1947,10 +1799,10 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
 
-                {/* Section 5: Contact Section Texts */}
+                {/* Section 4: Contact Section Texts */}
                 <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-xs space-y-4">
                   <h3 className="text-sm font-black text-gray-900 uppercase tracking-wider flex items-center gap-2">
-                    <span className="text-amber-500">✉️</span> 5. İletişim & Teklif Formu Başlıkları
+                    <span className="text-amber-500">✉️</span> 4. İletişim Formu Başlıkları
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                     <div>
@@ -1979,7 +1831,7 @@ export default function AdminDashboardPage() {
                         type="text"
                         value={settings.contactTitle || ''}
                         onChange={(e) => setSettings({ ...settings, contactTitle: e.target.value })}
-                        placeholder="Toptan Fiyat Teklifi Alın veya Bize Danışın"
+                        placeholder="Bizimle İletişime Geçin"
                         className="w-full px-3.5 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs font-bold"
                       />
                     </div>
@@ -1994,37 +1846,15 @@ export default function AdminDashboardPage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">1. Form Sekmesi Adı</label>
-                      <input
-                        type="text"
-                        value={settings.contactWholesaleTab || ''}
-                        onChange={(e) => setSettings({ ...settings, contactWholesaleTab: e.target.value })}
-                        placeholder="📦 Toptan / Tedarikçi Teklifi"
-                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs font-bold"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">2. Form Sekmesi Adı</label>
-                      <input
-                        type="text"
-                        value={settings.contactCustomerTab || ''}
-                        onChange={(e) => setSettings({ ...settings, contactCustomerTab: e.target.value })}
-                        placeholder="🧸 Müşteri / Genel Soru"
-                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs font-bold"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">Form Gönder Buton Metni</label>
-                      <input
-                        type="text"
-                        value={settings.contactSubmitBtnText || ''}
-                        onChange={(e) => setSettings({ ...settings, contactSubmitBtnText: e.target.value })}
-                        placeholder="Teklif Talebini Gönder"
-                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs font-bold text-plush-600"
-                      />
-                    </div>
+                  <div className="pt-1 max-w-sm">
+                    <label className="block text-xs font-bold text-gray-700 mb-1">Form Gönder Buton Metni</label>
+                    <input
+                      type="text"
+                      value={settings.contactSubmitBtnText || ''}
+                      onChange={(e) => setSettings({ ...settings, contactSubmitBtnText: e.target.value })}
+                      placeholder="Mesajı Gönder"
+                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs font-bold text-plush-600"
+                    />
                   </div>
 
                   {/* WhatsApp Contact Box */}
@@ -2098,10 +1928,10 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
 
-                {/* Section 6: Footer & Floating WhatsApp */}
+                {/* Section 5: Footer & Floating WhatsApp */}
                 <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-xs space-y-4">
                   <h3 className="text-sm font-black text-gray-900 uppercase tracking-wider flex items-center gap-2">
-                    <span className="text-amber-500">⚓</span> 6. Alt Bilgi (Footer) & Yüzen WhatsApp
+                    <span className="text-amber-500">⚓</span> 5. Alt Bilgi (Footer) & Yüzen WhatsApp
                   </h3>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1">Footer Şirket Tanıtım Metni</label>
@@ -2292,47 +2122,27 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">
-                        Genel İletişim E-Posta
-                      </label>
-                      <input
-                        type="email"
-                        value={settings.contact?.email || ''}
-                        onChange={(e) =>
-                          setSettings({
-                            ...settings,
-                            contact: { ...settings.contact, email: e.target.value }
-                          })
-                        }
-                        placeholder="info@lumytoys.com"
-                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-plush-400 focus:bg-white"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">
-                        Toptan Satış E-Posta
-                      </label>
-                      <input
-                        type="email"
-                        value={settings.contact?.wholesaleEmail || ''}
-                        onChange={(e) =>
-                          setSettings({
-                            ...settings,
-                            contact: { ...settings.contact, wholesaleEmail: e.target.value }
-                          })
-                        }
-                        placeholder="toptan@lumytoys.com"
-                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-plush-400 focus:bg-white"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">
+                      İletişim E-Posta Adresi
+                    </label>
+                    <input
+                      type="email"
+                      value={settings.contact?.email || ''}
+                      onChange={(e) =>
+                        setSettings({
+                          ...settings,
+                          contact: { ...settings.contact, email: e.target.value }
+                        })
+                      }
+                      placeholder="info@lumytoys.com"
+                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-plush-400 focus:bg-white"
+                    />
                   </div>
 
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1">
-                      Fabrika & Showroom Açık Adresi
+                      Açık Adres
                     </label>
                     <textarea
                       rows={2}
@@ -2389,7 +2199,7 @@ export default function AdminDashboardPage() {
                   <div>
                     <h2 className="text-xl font-black text-gray-900">E-Posta Bildirim Ayarları</h2>
                     <p className="text-xs text-gray-500 mt-0.5">
-                      Siteye yeni bir mesaj veya toptan teklif talebi geldiğinde istediğiniz e-postaya anında bildirim düşsün.
+                      Siteye yeni bir iletişim mesajı geldiğinde istediğiniz e-postaya anında bildirim düşsün.
                     </p>
                   </div>
                   <button
@@ -2407,7 +2217,7 @@ export default function AdminDashboardPage() {
                     <div className="space-y-0.5">
                       <strong className="text-sm text-gray-900 block">E-Posta Bildirimlerini Aktifleştir</strong>
                       <p className="text-xs text-gray-500">
-                        Ziyaretçi veya toptancı formu doldurduğu an belirlenen e-postaya bildirim gider.
+                        Ziyaretçi iletişim formunu doldurduğu an belirlenen e-postaya bildirim gider.
                       </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -2589,12 +2399,12 @@ export default function AdminDashboardPage() {
                   <div>
                     <h2 className="text-xl font-black text-gray-900">Gelen Mesajlar & Talepler</h2>
                     <p className="text-xs text-gray-500 mt-0.5">
-                      Web sitesindeki teklif formunu dolduran toptancıların ve müşterilerin mesajları.
+                      Web sitesindeki iletişim formunu dolduran müşterilerin mesajları.
                     </p>
                   </div>
 
                   <div className="text-xs font-bold bg-amber-50 text-amber-900 px-3 py-1.5 rounded-xl border border-amber-200">
-                    Toplam {messages.length} Talep
+                    Toplam {messages.length} Mesaj
                   </div>
                 </div>
 
@@ -2608,7 +2418,7 @@ export default function AdminDashboardPage() {
                   <div className="grid grid-cols-1 gap-4">
                     {messages.map((msg) => {
                       const cleanCustomerPhone = formatWhatsAppPhone(msg.phone);
-                      const waReplyUrl = `https://wa.me/${cleanCustomerPhone}?text=Merhaba%20${encodeURIComponent(msg.name)},%20Lumy%20Toys%20toptan%20ve%20pelu%C5%9F%20teklif%20talebiniz%20i%C3%A7in%20yaz%C4%B1yorum.`;
+                      const waReplyUrl = `https://wa.me/${cleanCustomerPhone}?text=Merhaba%20${encodeURIComponent(msg.name)},%20Lumy%20Toys%20pelu%C5%9F%20oyuncak%20mesaj%C4%B1n%C4%B1z%20i%C3%A7in%20yaz%C4%B1yorum.`;
 
                       return (
                         <div
@@ -2622,13 +2432,9 @@ export default function AdminDashboardPage() {
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-gray-100">
                             <div className="flex items-center gap-2.5">
                               <span
-                                className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${
-                                  msg.type === 'wholesale'
-                                    ? 'bg-emerald-100 text-emerald-800'
-                                    : 'bg-sky-100 text-sky-800'
-                                }`}
+                                className="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-900"
                               >
-                                {msg.type === 'wholesale' ? '📦 Toptan Teklif Talebi' : '🧸 Müşteri Sorusu'}
+                                💬 İletişim Mesajı
                               </span>
 
                               {msg.status === 'unread' && (
@@ -2806,98 +2612,104 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-bold text-gray-700">
-                      Fiyat (TL)
-                    </label>
-                    <span className="text-[10px] text-gray-400">Opsiyonel</span>
-                  </div>
-                  <input
-                    type="number"
-                    value={editingProduct.price ?? ''}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value === '' ? null : Number(e.target.value) })}
-                    placeholder="Boş bırakılabilir"
-                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-plush-400 focus:bg-white"
-                  />
-                  <span className="text-[10px] text-gray-400 mt-0.5 block">Boşsa "Fiyat Sorunuz" görünür.</span>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-bold text-gray-700">
-                      Min. Toptan (Adet)
-                    </label>
-                    <span className="text-[10px] text-gray-400">Opsiyonel</span>
-                  </div>
-                  <input
-                    type="number"
-                    value={editingProduct.wholesaleMin ?? ''}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, wholesaleMin: e.target.value === '' ? null : Number(e.target.value) })}
-                    placeholder="Boş bırakılabilir"
-                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-plush-400 focus:bg-white"
-                  />
-                  <span className="text-[10px] text-gray-400 mt-0.5 block">Toptan asgari sipariş miktarı.</span>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">
-                    Özel Rozet (Opsiyonel)
-                  </label>
-                  <input
-                    type="text"
-                    value={editingProduct.badge || ''}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, badge: e.target.value })}
-                    placeholder="Örn: En Çok Satan"
-                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-plush-400 focus:bg-white"
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">
+                  Özel Rozet (Opsiyonel)
+                </label>
+                <input
+                  type="text"
+                  value={editingProduct.badge || ''}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, badge: e.target.value })}
+                  placeholder="Örn: En Çok Satan, Yeni Ürün, Popüler..."
+                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-plush-400 focus:bg-white"
+                />
               </div>
 
-              {/* Image Input: File Upload OR Direct URL */}
-              <div className="space-y-2 bg-stone-50 p-4 rounded-2xl border border-gray-200">
-                <label className="block text-xs font-bold text-gray-700">
-                  Ürün Görseli
-                </label>
-                
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                  {editingProduct.image && (
-                    <div className="w-20 h-20 rounded-xl overflow-hidden border border-gray-300 bg-white shrink-0">
-                      <img
-                        src={editingProduct.image}
-                        alt="Önizleme"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-
-                  <div className="flex-1 w-full space-y-2">
-                    <div>
-                      <input
-                        type="text"
-                        value={editingProduct.image || ''}
-                        onChange={(e) => setEditingProduct({ ...editingProduct, image: e.target.value })}
-                        placeholder="Görsel URL yapıştırın (https://...)"
-                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs"
-                      />
-                    </div>
-
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <span>Veya bilgisayardan yükleyin:</span>
-                      <label className="inline-flex items-center gap-1.5 bg-white hover:bg-stone-100 text-gray-700 font-bold px-3 py-1.5 rounded-lg border border-gray-300 cursor-pointer shadow-xs">
-                        <Upload className="w-3.5 h-3.5" />
-                        <span>{uploadingImage ? 'Yükleniyor...' : 'Dosya Seç'}</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          className="hidden"
-                          disabled={uploadingImage}
-                        />
-                      </label>
-                    </div>
+              {/* 5-Images Gallery Manager */}
+              <div className="space-y-3 bg-stone-50 p-4 sm:p-5 rounded-2xl border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="block text-xs font-black text-gray-800">
+                      📸 Ürün Görselleri (Maksimum 5 Adet)
+                    </label>
+                    <span className="text-[11px] text-gray-500 block mt-0.5">
+                      1. görsel ana kapak fotoğrafıdır. Ziyaretçiler diğer fotoğrafları ürün detayında galeri olarak inceleyebilir.
+                    </span>
                   </div>
+                  {(editingProduct.images || []).length < 5 && (
+                    <button
+                      type="button"
+                      onClick={handleAddImageSlot}
+                      className="inline-flex items-center gap-1 bg-plush-50 hover:bg-plush-100 text-plush-700 border border-plush-200 font-bold px-3 py-1.5 rounded-xl text-xs transition-colors cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>+ Görsel Ekle ({(editingProduct.images || []).length}/5)</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  {(editingProduct.images || ['']).map((imgUrl, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 bg-white rounded-xl border border-gray-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center gap-3"
+                    >
+                      {/* Thumbnail Preview */}
+                      <div className="w-16 h-16 rounded-xl overflow-hidden border border-gray-200 bg-amber-50 shrink-0 flex items-center justify-center relative">
+                        {imgUrl ? (
+                          <img src={imgUrl} alt={`Görsel ${idx + 1}`} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-gray-400 text-[10px] font-bold text-center p-1">Görsel Yok</span>
+                        )}
+                        {idx === 0 && (
+                          <span className="absolute bottom-0 inset-x-0 bg-plush-600 text-white text-[8px] font-black text-center py-0.5 uppercase tracking-wider">
+                            Kapak
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Inputs */}
+                      <div className="flex-1 w-full space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-extrabold text-gray-700">
+                            {idx === 0 ? '👑 1. Ana Kapak Görseli' : `${idx + 1}. Ek Görsel`}
+                          </span>
+                          {(editingProduct.images || []).length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImageSlot(idx)}
+                              className="text-red-500 hover:text-red-700 text-[11px] font-bold inline-flex items-center gap-1 cursor-pointer"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                              <span>Sil</span>
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row items-center gap-2">
+                          <input
+                            type="text"
+                            value={imgUrl}
+                            onChange={(e) => handleImageSlotUrlChange(idx, e.target.value)}
+                            placeholder="Görsel URL yapıştırın (https://...)"
+                            className="w-full flex-1 px-3 py-1.5 bg-stone-50 border border-gray-200 rounded-lg text-xs"
+                          />
+
+                          <label className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-white hover:bg-stone-50 text-gray-700 font-bold px-3 py-1.5 rounded-lg border border-gray-300 cursor-pointer shadow-xs text-xs shrink-0">
+                            <Upload className="w-3 h-3 text-plush-600" />
+                            <span>{uploadingImage ? 'Yükleniyor...' : 'Dosya Seç'}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleImageUploadSlot(idx, e)}
+                              className="hidden"
+                              disabled={uploadingImage}
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 

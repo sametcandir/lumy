@@ -10,7 +10,6 @@ interface ContactSectionProps {
 }
 
 export default function ContactSection({ settings }: ContactSectionProps) {
-  const [formType, setFormType] = useState<'wholesale' | 'customer'>('wholesale');
   const [formData, setFormData] = useState({
     name: '',
     company: '',
@@ -39,7 +38,7 @@ export default function ContactSection({ settings }: ContactSectionProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          type: formType
+          type: 'customer'
         })
       });
 
@@ -76,11 +75,11 @@ export default function ContactSection({ settings }: ContactSectionProps) {
             <span>{settings.contactBadge || 'Bize Ulaşın'}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">
-            {settings.contactTitle || 'Toptan Fiyat Teklifi Alın veya Bize Danışın'}
+            {settings.contactTitle || 'Bize Ulaşın veya Aklınıza Takılanları Sorun'}
           </h2>
           <p className="text-gray-600 text-base sm:text-lg">
             {settings.contactSubtitle ||
-              'İster mağazanız için toptan sipariş planlayın, ister aklınıza takılan soruları sorun. Ekibimiz en kısa sürede size dönüş yapacaktır.'}
+              'Peluş oyuncaklarımız, sipariş süreçleri veya özel talepleriniz için ekibimizle dilediğiniz zaman iletişime geçebilirsiniz.'}
           </p>
         </div>
 
@@ -88,45 +87,19 @@ export default function ContactSection({ settings }: ContactSectionProps) {
           
           {/* Left Column: Form */}
           <div className="lg:col-span-7 bg-white rounded-4xl p-6 sm:p-10 border border-amber-100 shadow-xl">
-            
-            {/* Form Type Tabs */}
-            <div className="flex rounded-2xl bg-amber-50/80 p-1.5 mb-8 border border-amber-200">
-              <button
-                type="button"
-                onClick={() => setFormType('wholesale')}
-                className={`flex-1 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
-                  formType === 'wholesale'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                {settings.contactWholesaleTab || '📦 Toptan / Tedarikçi Teklifi'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setFormType('customer')}
-                className={`flex-1 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
-                  formType === 'customer'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                {settings.contactCustomerTab || '🧸 Müşteri / Genel Soru'}
-              </button>
-            </div>
 
             {success ? (
               <div className="text-center py-12 space-y-4">
                 <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl">
                   ✓
                 </div>
-                <h3 className="text-2xl font-black text-gray-900">Talebiniz Alındı!</h3>
+                <h3 className="text-2xl font-black text-gray-900">Mesajınız Alındı!</h3>
                 <p className="text-gray-600 text-sm max-w-md mx-auto">
-                  Mesajınız ve bilgileriniz başarıyla yetkililerimize iletildi. Toptan satış temsilcimiz veya müşteri ekibimiz sizinle en kısa sürede irtibata geçecektir.
+                  Mesajınız ve bilgileriniz başarıyla yetkililerimize iletildi. Ekibimiz sizinle en kısa sürede irtibata geçecektir.
                 </p>
                 <button
                   onClick={() => setSuccess(false)}
-                  className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-plush-600 bg-plush-50 px-5 py-2.5 rounded-xl border border-plush-200 hover:bg-plush-100"
+                  className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-plush-600 bg-plush-50 px-5 py-2.5 rounded-xl border border-plush-200 hover:bg-plush-100 cursor-pointer"
                 >
                   Yeni Bir Mesaj Gönder
                 </button>
@@ -183,79 +156,30 @@ export default function ContactSection({ settings }: ContactSectionProps) {
                     />
                   </div>
 
-                  {formType === 'wholesale' ? (
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Firma / Mağaza Adı
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.company}
-                        onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                        placeholder="Örn: Renkli Düşler Oyuncak"
-                        className="w-full px-4 py-3 bg-stone-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-plush-400 focus:bg-white"
-                      />
-                    </div>
-                  ) : (
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        İlgilendiğiniz Ürün
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.productInterest}
-                        onChange={(e) => setFormData({ ...formData, productInterest: e.target.value })}
-                        placeholder="Örn: 120 cm Dev Ayıcık"
-                        className="w-full px-4 py-3 bg-stone-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-plush-400 focus:bg-white"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {formType === 'wholesale' && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        İlgilendiğiniz Modeller
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.productInterest}
-                        onChange={(e) => setFormData({ ...formData, productInterest: e.target.value })}
-                        placeholder="Örn: Ayıcıklar & Dinozor Serisi"
-                        className="w-full px-4 py-3 bg-stone-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-plush-400 focus:bg-white"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Tahmini Adet / Bütçe
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.estimatedQty}
-                        onChange={(e) => setFormData({ ...formData, estimatedQty: e.target.value })}
-                        placeholder="Örn: 100 - 250 adet"
-                        className="w-full px-4 py-3 bg-stone-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-plush-400 focus:bg-white"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
+                      İlgilendiğiniz Peluş Modeli (Opsiyonel)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.productInterest}
+                      onChange={(e) => setFormData({ ...formData, productInterest: e.target.value })}
+                      placeholder="Örn: Dev Kalpli Ayıcık"
+                      className="w-full px-4 py-3 bg-stone-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-plush-400 focus:bg-white"
+                    />
                   </div>
-                )}
+                </div>
 
                 <div>
                   <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                    Mesajınız & Talebiniz <span className="text-red-500">*</span>
+                    Mesajınız <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     required
                     rows={4}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder={
-                      formType === 'wholesale'
-                        ? 'Toptan katalog ve fiyat listesi talebinizi, teslimat şehri veya varsa özel taleplerinizi belirtebilirsiniz...'
-                        : 'Sormak istediğiniz soruları buraya yazabilirsiniz...'
-                    }
+                    placeholder="Sormak istediğiniz soruları, özel taleplerinizi buraya yazabilirsiniz..."
                     className="w-full px-4 py-3 bg-stone-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-plush-400 focus:bg-white"
                   />
                 </div>
@@ -266,7 +190,7 @@ export default function ContactSection({ settings }: ContactSectionProps) {
                   className="w-full flex items-center justify-center gap-2 bg-plush-500 hover:bg-plush-600 disabled:opacity-60 text-white font-black py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all cursor-pointer text-base"
                 >
                   <Send className="w-5 h-5" />
-                  <span>{loading ? 'Gönderiliyor...' : (settings.contactSubmitBtnText || 'Teklif Talebini Gönder')}</span>
+                  <span>{loading ? 'Gönderiliyor...' : (settings.contactSubmitBtnText || 'Mesajı Gönder')}</span>
                 </button>
               </form>
             )}
@@ -284,7 +208,7 @@ export default function ContactSection({ settings }: ContactSectionProps) {
                 </div>
                 <h3 className="text-xl font-black">{settings.contactCardTitle || 'Hızlı WhatsApp İletişim Hattı'}</h3>
                 <p className="text-sm text-emerald-100 font-light">
-                  {settings.contactCardText || 'Form doldurmakla vakit kaybetmek istemiyorsanız doğrudan toptan ve perakende satış sorumlumuzla WhatsApp üzerinden yazışabilirsiniz.'}
+                  {settings.contactCardText || 'Doğrudan bize WhatsApp üzerinden yazabilir, peluş oyuncaklarımız ve sipariş süreçleri hakkında anında bilgi alabilirsiniz.'}
                 </p>
                 <div className="text-2xl font-black pt-1">
                   {settings.contact?.whatsapp || '+90 530 123 45 67'}
@@ -321,15 +245,10 @@ export default function ContactSection({ settings }: ContactSectionProps) {
                   <Mail className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-gray-400 uppercase">{settings.contactEmailTitle || 'E-Posta Adresleri'}</h4>
+                  <h4 className="text-xs font-bold text-gray-400 uppercase">{settings.contactEmailTitle || 'E-Posta Adresi'}</h4>
                   <p className="text-sm font-bold text-gray-800 mt-0.5">
                     {settings.contact?.email || 'info@lumytoys.com'}
                   </p>
-                  {settings.contact?.wholesaleEmail && (
-                    <p className="text-xs text-plush-600 font-semibold">
-                      Toptan: {settings.contact.wholesaleEmail}
-                    </p>
-                  )}
                 </div>
               </div>
 
@@ -338,7 +257,7 @@ export default function ContactSection({ settings }: ContactSectionProps) {
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-gray-400 uppercase">{settings.contactAddressTitle || 'Fabrika & Showroom Adresi'}</h4>
+                  <h4 className="text-xs font-bold text-gray-400 uppercase">{settings.contactAddressTitle || 'Showroom & Atölye Adresi'}</h4>
                   <p className="text-sm font-medium text-gray-700 mt-0.5 leading-snug">
                     {settings.contact?.address || 'İkitelli OSB Mah. Oyuncakçılar Sanayi Sitesi A Blok No: 24, Başakşehir / İstanbul'}
                   </p>

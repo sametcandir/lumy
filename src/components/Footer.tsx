@@ -40,8 +40,8 @@ export default function Footer({ settings }: FooterProps) {
             <p className="text-xs text-stone-400 leading-relaxed">
               {settings.footerDescription ||
                 (settings.slogan
-                  ? `${settings.slogan} Türkiye genelinde toptan oyuncak tedariği ve perakende peluş vitrini.`
-                  : 'Lumy Toys olarak 1. sınıf antialerjik kumaşlar ve CE güvenlik standartlarında toptan ve perakende peluş oyuncaklar üretiyoruz.')}
+                  ? `${settings.slogan} En sevimli ve kaliteli peluş oyuncak koleksiyonları.`
+                  : 'Lumy Toys olarak 1. sınıf antialerjik kumaşlar ve CE güvenlik standartlarında sevimli peluş oyuncaklar tasarlıyoruz.')}
             </p>
 
             <div className="flex items-center gap-2 text-xs text-emerald-400">
@@ -60,18 +60,13 @@ export default function Footer({ settings }: FooterProps) {
                 </a>
               </li>
               <li>
-                <a href="#toptan" className="hover:text-plush-400 transition-colors">
-                  {settings.navWholesale || 'Toptan Tedarik & B2B Fiyatlar'}
-                </a>
-              </li>
-              <li>
                 <a href="#hakkimizda" className="hover:text-plush-400 transition-colors">
                   {settings.navAbout || 'Hakkımızda & Kalite Standartları'}
                 </a>
               </li>
               <li>
                 <a href="#iletisim" className="hover:text-plush-400 transition-colors">
-                  {settings.navContact || 'Fiyat Teklifi & İletişim'}
+                  {settings.navContact || 'İletişim & Danışma'}
                 </a>
               </li>
             </ul>
@@ -89,16 +84,13 @@ export default function Footer({ settings }: FooterProps) {
             <p className="text-xs text-stone-400">
               <strong>E-posta:</strong> {settings.contact?.email}
             </p>
-            <p className="text-xs text-stone-400">
-              <strong>Toptan Destek:</strong> {settings.contact?.wholesaleEmail}
-            </p>
           </div>
 
           {/* Col 4: Admin & Legal */}
           <div className="space-y-3">
             <h4 className="text-white font-bold text-sm tracking-wider uppercase">{settings.footerCol4Title || 'Yönetim & Güvenlik'}</h4>
             <p className="text-xs text-stone-400">
-              Web sitesi içeriklerini, ürünlerini ve toptan tekliflerini yönetmek için:
+              Web sitesi içeriklerini, vitrin peluşlarını ve mesajları yönetmek için:
             </p>
             <div>
               <Link

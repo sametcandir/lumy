@@ -15,8 +15,15 @@ export default function ProductCatalog({ products, categories, settings }: Produ
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeModalProduct, setActiveModalProduct] = useState<Product | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
 
   const cleanPhone = formatWhatsAppPhone(settings.contact?.whatsapp);
+
+  // Open modal and reset gallery image index
+  const handleOpenModal = (product: Product) => {
+    setActiveModalProduct(product);
+    setActiveImageIndex(0);
+  };
 
   // Filter products: only products intended to be shown on the homepage
   const visibleProducts = useMemo(() => {
@@ -49,16 +56,8 @@ export default function ProductCatalog({ products, categories, settings }: Produ
     });
   }, [visibleProducts, selectedCategory, searchQuery]);
 
-  const handleWhatsAppOrder = (product: Product, isWholesale: boolean = false) => {
-    let text = '';
-    if (isWholesale) {
-      const minText = product.wholesaleMin ? ` (Min Sipariş: ${product.wholesaleMin} adet)` : '';
-      text = `Merhaba Lumy Toys, "${product.name}" ürünü için toptan fiyat teklifi ve katalog bilgisi almak istiyorum.${minText}`;
-    } else {
-      const priceText = product.price ? ` Fiyatı: ₺${product.price}.` : '';
-      text = `Merhaba Lumy Toys, "${product.name}" peluş ürünü hakkında bilgi ve sipariş detaylarını almak istiyorum.${priceText}`;
-    }
-
+  const handleWhatsAppOrder = (product: Product) => {
+    const text = `Merhaba Lumy Toys, "${product.name}" peluş ürünü hakkında bilgi ve sipariş detaylarını almak istiyorum.`;
     const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
   };
@@ -78,7 +77,7 @@ export default function ProductCatalog({ products, categories, settings }: Produ
           </h2>
           <p className="text-gray-600 text-base sm:text-lg font-normal">
             {settings.catalogSubtitle ||
-              'Hem tek tek sevdiklerinize hediye etmek için hem de mağazanıza toptan sipariş vermek için en çok tercih edilen modellerimizi keşfedin.'}
+              'Her dikişinde sevgi, her dokunuşunda güven taşıyan en sevimli peluş modellerimizi keşfedin.'}
           </p>
         </div>
 
@@ -147,248 +146,264 @@ export default function ProductCatalog({ products, categories, settings }: Produ
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
-            {filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                className="group bg-white rounded-3xl border border-amber-100/90 shadow-soft hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col justify-between"
-              >
-                <div>
-                  {/* Product Image Area */}
-                  <div className="relative h-64 w-full bg-amber-50/70 overflow-hidden cursor-pointer" onClick={() => setActiveModalProduct(product)}>
-                    <img
-                      src={product.image || 'https://images.unsplash.com/photo-1559454403-b8fb88521f11?w=800&auto=format&fit=crop&q=80'}
-                      alt={product.name}
-                      className="w-full h-full object-cover object-center group-hover:scale-108 transition-transform duration-500"
-                    />
+            {filteredProducts.map((product) => {
+              const productImages = (product.images && product.images.length > 0)
+                ? product.images
+                : (product.image ? [product.image] : []);
+              const mainImg = productImages[0] || product.image || 'https://images.unsplash.com/photo-1559454403-b8fb88521f11?w=800&auto=format&fit=crop&q=80';
 
-                    {/* Product Badge */}
-                    {product.badge && (
-                      <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-amber-900 font-black text-[11px] px-3 py-1 rounded-full shadow-sm">
-                        {product.badge}
+              return (
+                <div
+                  key={product.id}
+                  className="group bg-white rounded-3xl border border-amber-100/90 shadow-soft hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col justify-between"
+                >
+                  <div>
+                    {/* Product Image Area */}
+                    <div className="relative h-64 w-full bg-amber-50/70 overflow-hidden cursor-pointer" onClick={() => handleOpenModal(product)}>
+                      <img
+                        src={mainImg}
+                        alt={product.name}
+                        className="w-full h-full object-cover object-center group-hover:scale-108 transition-transform duration-500"
+                      />
+
+                      {/* Product Badge */}
+                      {product.badge && (
+                        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-amber-900 font-black text-[11px] px-3 py-1 rounded-full shadow-sm">
+                          {product.badge}
+                        </div>
+                      )}
+
+                      {/* Multiple Images Indicator Badge */}
+                      {productImages.length > 1 && (
+                        <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md text-white font-bold text-[10px] px-2.5 py-1 rounded-xl shadow-sm flex items-center gap-1">
+                          <span>📷</span>
+                          <span>{productImages.length} Fotoğraf</span>
+                        </div>
+                      )}
+
+                      {/* Quick Preview Button */}
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenModal(product);
+                          }}
+                          className="bg-white/95 text-gray-900 font-bold text-xs px-4 py-2 rounded-xl shadow-lg flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-plush-600" />
+                          <span>{settings.catalogCardViewBtn || 'Detayları İncele'}</span>
+                        </button>
                       </div>
-                    )}
+                    </div>
 
-                    {/* Wholesale Min Badge (Optional) */}
-                    {product.wholesaleMin ? (
-                      <div className="absolute bottom-3 left-3 bg-stone-900/85 backdrop-blur-sm text-amber-300 font-bold text-[11px] px-2.5 py-1 rounded-xl shadow-sm flex items-center gap-1">
-                        <span>📦 Min Toptan:</span>
-                        <strong className="text-white">{product.wholesaleMin} Adet</strong>
+                    {/* Content Area */}
+                    <div className="p-5 space-y-2.5">
+                      <div className="flex items-center justify-between text-xs text-amber-800/80 font-semibold uppercase tracking-wider">
+                        <span>
+                          {categories.find((c) => c.id === product.category)?.name || 'Peluş'}
+                        </span>
+                        {product.showStock !== false && (
+                          product.inStock !== false ? (
+                            <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md font-bold">
+                              {settings.catalogInStockText || 'Stokta Var'}
+                            </span>
+                          ) : (
+                            <span className="text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md font-bold">
+                              {settings.catalogOutOfStockText || 'Tükendi'}
+                            </span>
+                          )
+                        )}
                       </div>
-                    ) : null}
 
-                    {/* Quick Preview Button */}
-                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <h3
+                        onClick={() => handleOpenModal(product)}
+                        className="font-bold text-gray-900 text-base group-hover:text-plush-600 transition-colors line-clamp-1 cursor-pointer"
+                        title={product.name}
+                      >
+                        {product.name}
+                      </h3>
+
+                      <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed font-normal">
+                        {product.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Action Footer without prices */}
+                  <div className="p-5 pt-0">
+                    <div className="pt-3 border-t border-gray-100 flex items-center gap-2">
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveModalProduct(product);
-                        }}
-                        className="bg-white/95 text-gray-900 font-bold text-xs px-4 py-2 rounded-xl shadow-lg flex items-center gap-1.5 hover:scale-105 transition-transform"
+                        onClick={() => handleOpenModal(product)}
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 bg-stone-100 hover:bg-stone-200/90 text-gray-800 font-bold text-xs py-2.5 px-3 rounded-xl transition-colors cursor-pointer"
                       >
                         <Eye className="w-3.5 h-3.5 text-plush-600" />
-                        <span>{settings.catalogCardViewBtn || 'Detayları Gör'}</span>
+                        <span>İncele</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleWhatsAppOrder(product)}
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs py-2.5 px-3 rounded-xl shadow-xs transition-colors cursor-pointer"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5 fill-white text-white" />
+                        <span>WhatsApp</span>
                       </button>
                     </div>
                   </div>
-
-                  {/* Content Area */}
-                  <div className="p-5 space-y-2.5">
-                    <div className="flex items-center justify-between text-xs text-amber-800/80 font-semibold uppercase tracking-wider">
-                      <span>
-                        {categories.find((c) => c.id === product.category)?.name || 'Peluş'}
-                      </span>
-                      {product.showStock !== false && (
-                        product.inStock !== false ? (
-                          <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md font-bold">
-                            {settings.catalogInStockText || 'Stokta Var'}
-                          </span>
-                        ) : (
-                          <span className="text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md font-bold">
-                            {settings.catalogOutOfStockText || 'Tükendi'}
-                          </span>
-                        )
-                      )}
-                    </div>
-
-                    <h3
-                      onClick={() => setActiveModalProduct(product)}
-                      className="font-bold text-gray-900 text-base group-hover:text-plush-600 transition-colors line-clamp-1 cursor-pointer"
-                      title={product.name}
-                    >
-                      {product.name}
-                    </h3>
-
-                    <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed font-normal">
-                      {product.description}
-                    </p>
-                  </div>
                 </div>
-
-                {/* Pricing and Action Footer */}
-                <div className="p-5 pt-0">
-                  <div className="flex items-baseline justify-between mb-4 border-t border-gray-100 pt-3">
-                    <div>
-                      <span className="text-[10px] text-gray-400 uppercase font-bold block">
-                        {product.price ? 'Perakende Fiyat' : 'Fiyat Durumu'}
-                      </span>
-                      {product.price ? (
-                        <span className="text-xl font-black text-gray-900">
-                          ₺{product.price}
-                        </span>
-                      ) : (
-                        <span className="text-xs font-black text-amber-600 bg-amber-50 px-2 py-1 rounded-lg inline-block border border-amber-200">
-                          {settings.catalogNoPriceText || 'Fiyat Sorunuz'}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[10px] text-emerald-600 uppercase font-extrabold block">
-                        Toptan Satış
-                      </span>
-                      <span className="text-xs font-black text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg inline-block">
-                        Özel İskonto
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => handleWhatsAppOrder(product, false)}
-                      className="inline-flex items-center justify-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs py-2.5 px-3 rounded-xl border border-emerald-200 transition-colors"
-                      title="WhatsApp ile Perakende Sipariş Ver"
-                    >
-                      <MessageCircle className="w-3.5 h-3.5 fill-emerald-600 text-emerald-600" />
-                      <span>{settings.catalogCardOrderBtn || 'Sipariş Ver'}</span>
-                    </button>
-
-                    <button
-                      onClick={() => handleWhatsAppOrder(product, true)}
-                      className="inline-flex items-center justify-center gap-1.5 bg-plush-50 hover:bg-plush-100 text-plush-700 font-bold text-xs py-2.5 px-3 rounded-xl border border-plush-200 transition-colors"
-                      title="Toptan Teklif Al"
-                    >
-                      <span>{settings.catalogCardWholesaleBtn || 'Toptan Fiyat'}</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
-        {/* Modal Product Detail */}
-        {activeModalProduct && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
-            onClick={() => setActiveModalProduct(null)}
-          >
+        {/* Modal Product Detail with 5 Images Gallery */}
+        {activeModalProduct && (() => {
+          const modalImages = (activeModalProduct.images && activeModalProduct.images.length > 0)
+            ? activeModalProduct.images
+            : (activeModalProduct.image ? [activeModalProduct.image] : []);
+          const currentImg = modalImages[activeImageIndex] || activeModalProduct.image || 'https://images.unsplash.com/photo-1559454403-b8fb88521f11?w=800&auto=format&fit=crop&q=80';
+
+          return (
             <div
-              className="bg-white rounded-4xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-amber-100 relative p-6 sm:p-8"
-              onClick={(e) => e.stopPropagation()}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+              onClick={() => setActiveModalProduct(null)}
             >
-              {/* Close Button */}
-              <button
-                onClick={() => setActiveModalProduct(null)}
-                className="absolute top-4 right-4 p-2 bg-stone-100 hover:bg-stone-200 text-gray-700 rounded-full transition-colors"
-                aria-label="Kapat"
+              <div
+                className="bg-white rounded-4xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-amber-100 relative p-6 sm:p-8"
+                onClick={(e) => e.stopPropagation()}
               >
-                <X className="w-5 h-5" />
-              </button>
+                {/* Close Button */}
+                <button
+                  onClick={() => setActiveModalProduct(null)}
+                  className="absolute top-4 right-4 p-2 bg-stone-100 hover:bg-stone-200 text-gray-700 rounded-full transition-colors cursor-pointer"
+                  aria-label="Kapat"
+                >
+                  <X className="w-5 h-5" />
+                </button>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 items-start">
-                {/* Modal Image */}
-                <div className="rounded-3xl overflow-hidden bg-amber-50 h-72 sm:h-80 relative border border-amber-100 shadow-inner">
-                  <img
-                    src={activeModalProduct.image}
-                    alt={activeModalProduct.name}
-                    className="w-full h-full object-cover object-center"
-                  />
-                  {activeModalProduct.badge && (
-                    <div className="absolute top-3 left-3 bg-white/95 font-extrabold text-xs px-3 py-1 rounded-full text-amber-900 shadow-sm">
-                      {activeModalProduct.badge}
-                    </div>
-                  )}
-                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 items-start">
+                  {/* Modal Image Gallery */}
+                  <div className="space-y-3">
+                    <div className="rounded-3xl overflow-hidden bg-amber-50 h-72 sm:h-80 relative border border-amber-100 shadow-inner group">
+                      <img
+                        src={currentImg}
+                        alt={activeModalProduct.name}
+                        className="w-full h-full object-cover object-center transition-all duration-300"
+                      />
+                      {activeModalProduct.badge && (
+                        <div className="absolute top-3 left-3 bg-white/95 font-extrabold text-xs px-3 py-1 rounded-full text-amber-900 shadow-sm">
+                          {activeModalProduct.badge}
+                        </div>
+                      )}
 
-                {/* Modal Info */}
-                <div className="space-y-4">
-                  <div>
-                    <span className="text-xs font-bold text-plush-600 uppercase tracking-wider">
-                      {categories.find((c) => c.id === activeModalProduct.category)?.name}
-                    </span>
-                    <h3 className="text-2xl font-black text-gray-900 mt-1">
-                      {activeModalProduct.name}
-                    </h3>
-                  </div>
-
-                  <div className="flex items-baseline gap-4 py-2 border-y border-gray-100">
-                    <div>
-                      <span className="text-xs text-gray-400 block font-bold">
-                        {activeModalProduct.price ? 'Perakende Fiyat' : 'Fiyat Durumu'}
-                      </span>
-                      {activeModalProduct.price ? (
-                        <span className="text-2xl font-black text-plush-600">
-                          ₺{activeModalProduct.price}
-                        </span>
-                      ) : (
-                        <span className="text-base font-black text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg inline-block border border-amber-200">
-                          Fiyat Sorunuz
-                        </span>
+                      {/* Prev/Next arrows if multiple images */}
+                      {modalImages.length > 1 && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveImageIndex((prev) => (prev > 0 ? prev - 1 : modalImages.length - 1));
+                            }}
+                            className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/65 text-white flex items-center justify-center backdrop-blur-xs transition-all cursor-pointer text-lg font-bold"
+                            aria-label="Önceki Görsel"
+                          >
+                            ‹
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveImageIndex((prev) => (prev < modalImages.length - 1 ? prev + 1 : 0));
+                            }}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/65 text-white flex items-center justify-center backdrop-blur-xs transition-all cursor-pointer text-lg font-bold"
+                            aria-label="Sonraki Görsel"
+                          >
+                            ›
+                          </button>
+                        </>
                       )}
                     </div>
-                    {activeModalProduct.wholesaleMin ? (
-                      <div>
-                        <span className="text-xs text-gray-400 block font-bold">Min Toptan Alım</span>
-                        <span className="text-lg font-bold text-gray-800">
-                          {activeModalProduct.wholesaleMin} Adet
+
+                    {/* Thumbnail Row (Up to 5 images) */}
+                    {modalImages.length > 1 && (
+                      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                        {modalImages.map((img, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setActiveImageIndex(idx)}
+                            className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer ${
+                              activeImageIndex === idx
+                                ? 'border-plush-500 ring-2 ring-plush-300 scale-105'
+                                : 'border-gray-200 opacity-60 hover:opacity-100'
+                            }`}
+                          >
+                            <img src={img} alt="" className="w-full h-full object-cover" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Modal Info */}
+                  <div className="space-y-4">
+                    <div>
+                      <span className="text-xs font-bold text-plush-600 uppercase tracking-wider">
+                        {categories.find((c) => c.id === activeModalProduct.category)?.name}
+                      </span>
+                      <h3 className="text-2xl font-black text-gray-900 mt-1">
+                        {activeModalProduct.name}
+                      </h3>
+                    </div>
+
+                    {activeModalProduct.showStock !== false && (
+                      <div className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-amber-50 border border-amber-200">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                        <span className="text-gray-800">
+                          {activeModalProduct.inStock !== false ? (settings.catalogInStockText || 'Stokta Mevcut') : (settings.catalogOutOfStockText || 'Tükendi')}
                         </span>
                       </div>
-                    ) : null}
-                  </div>
+                    )}
 
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Ürün Açıklaması</h4>
-                    <p className="text-sm text-gray-600 leading-relaxed">
-                      {activeModalProduct.description}
-                    </p>
-                  </div>
+                    <div className="space-y-2">
+                      <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Ürün Açıklaması</h4>
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        {activeModalProduct.description}
+                      </p>
+                    </div>
 
-                  {/* Quality Checklist */}
-                  <div className="space-y-1.5 text-xs text-gray-600 bg-amber-50/70 p-3 rounded-2xl border border-amber-200/60">
-                    <div className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>1. Kalite EN-71 Avrupa Güvenlik Onaylı</span>
+                    {/* Quality Checklist */}
+                    <div className="space-y-1.5 text-xs text-gray-600 bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200/60">
+                      <div className="flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>1. Kalite EN-71 Avrupa Güvenlik Onaylı</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Antialerjik yıkanabilir peluş kumaş</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Kopmaz kilitli göz sistemi (Bebek güvenli)</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Antialerjik yıkanabilir peluş kumaş</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Kopmaz kilitli göz sistemi (Bebek güvenli)</span>
-                    </div>
-                  </div>
 
-                  {/* Action Buttons */}
-                  <div className="space-y-2 pt-2">
-                    <button
-                      onClick={() => handleWhatsAppOrder(activeModalProduct, false)}
-                      className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 px-4 rounded-2xl text-sm shadow-md transition-all"
-                    >
-                      <MessageCircle className="w-4 h-4 fill-white" />
-                      <span>Hemen WhatsApp ile Sipariş Ver</span>
-                    </button>
-                    <button
-                      onClick={() => handleWhatsAppOrder(activeModalProduct, true)}
-                      className="w-full flex items-center justify-center gap-2 bg-stone-900 hover:bg-black text-white font-extrabold py-3 px-4 rounded-2xl text-sm transition-all"
-                    >
-                      <span>Toptan Fiyat Teklifi İste (MOQ {activeModalProduct.wholesaleMin})</span>
-                    </button>
+                    {/* Action Button */}
+                    <div className="pt-2">
+                      <button
+                        onClick={() => handleWhatsAppOrder(activeModalProduct)}
+                        className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-sm shadow-md transition-all cursor-pointer"
+                      >
+                        <MessageCircle className="w-4 h-4 fill-white" />
+                        <span>WhatsApp ile Bilgi Al / Sipariş Ver</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
       </div>
     </section>

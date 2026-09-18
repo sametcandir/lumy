@@ -14,14 +14,14 @@ export default function Navbar({ settings }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const cleanPhone = formatWhatsAppPhone(settings.contact?.whatsapp);
-  const whatsappUrl = `https://wa.me/${cleanPhone}?text=Merhaba%20Lumy%20Toys,%20pelu%C5%9F%20oyuncaklar%20ve%20toptan%20sat%C4%B1%C5%9F%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum.`;
+  const whatsappUrl = `https://wa.me/${cleanPhone}?text=Merhaba%20Lumy%20Toys,%20pelu%C5%9F%20oyuncaklar%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum.`;
 
   return (
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-amber-100/70 transition-all">
       {/* Top Notice Bar */}
       <div className="bg-gradient-to-r from-amber-500 via-plush-500 to-amber-600 text-white text-xs sm:text-sm font-medium py-1.5 px-4 text-center flex items-center justify-center gap-2">
         <Sparkles className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '4s' }} />
-        <span>{settings.badgeText || "Türkiye'nin En Sevilen Toptan & Perakende Peluş Üreticisi"}</span>
+        <span>{settings.badgeText || "Türkiye'nin En Sevilen Peluş Dünyası"}</span>
         {settings.badgeSubtext !== '' && (
           <span className="hidden md:inline">• 🧸 {settings.badgeSubtext || '1. Sınıf EN-71 Sertifikalı Antialerjik Dolgu'}</span>
         )}
@@ -65,15 +65,6 @@ export default function Navbar({ settings }: NavbarProps) {
               {settings.navCatalog || 'Ürün Kataloğu'}
             </a>
             <a
-              href="#toptan"
-              className="text-gray-700 hover:text-plush-600 font-semibold text-sm flex items-center gap-1.5 transition-colors"
-            >
-              <span>{settings.navWholesale || 'Toptan & Tedarik'}</span>
-              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">
-                B2B
-              </span>
-            </a>
-            <a
               href="#hakkimizda"
               className="text-gray-700 hover:text-plush-600 font-semibold text-sm transition-colors"
             >
@@ -83,7 +74,7 @@ export default function Navbar({ settings }: NavbarProps) {
               href="#iletisim"
               className="text-gray-700 hover:text-plush-600 font-semibold text-sm transition-colors"
             >
-              {settings.navContact || 'İletişim & Teklif'}
+              {settings.navContact || 'İletişim'}
             </a>
           </nav>
 
@@ -142,14 +133,6 @@ export default function Navbar({ settings }: NavbarProps) {
             🧸 {settings.navCatalog || 'Ürün Kataloğu'}
           </a>
           <a
-            href="#toptan"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-base font-bold text-gray-800 hover:text-plush-600 border-b border-gray-100 flex items-center justify-between"
-          >
-            <span>📦 {settings.navWholesale || 'Toptan Satış & Tedarik'}</span>
-            <span className="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full font-bold">B2B</span>
-          </a>
-          <a
             href="#hakkimizda"
             onClick={() => setMobileMenuOpen(false)}
             className="block py-2 text-base font-bold text-gray-800 hover:text-plush-600 border-b border-gray-100"
@@ -161,7 +144,7 @@ export default function Navbar({ settings }: NavbarProps) {
             onClick={() => setMobileMenuOpen(false)}
             className="block py-2 text-base font-bold text-gray-800 hover:text-plush-600 border-b border-gray-100"
           >
-            ✉️ {settings.navContact || 'İletişim & Teklif Formu'}
+            ✉️ {settings.navContact || 'İletişim'}
           </a>
           <div className="pt-2 flex flex-col gap-2.5">
             <a

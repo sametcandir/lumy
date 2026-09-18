@@ -162,9 +162,10 @@ export interface Product {
   id: string;
   name: string;
   category: string;
-  price?: number | null; // Opsiyonel
-  wholesaleMin?: number | null; // Opsiyonel
-  image: string;
+  price?: number | null; // Opsiyonel (artık gösterilmiyor)
+  wholesaleMin?: number | null; // Opsiyonel (artık gösterilmiyor)
+  image: string; // Ana kapak görseli
+  images?: string[]; // 5 adede kadar ürün görsel galerisi
   description: string;
   inStock?: boolean; // Opsiyonel
   showStock?: boolean; // Stok durumu sitede belirtilsin mi?
@@ -327,9 +328,15 @@ export async function getProduct(id: string): Promise<Product | undefined> {
 
 export async function createProduct(data: Omit<Product, 'id'>): Promise<Product> {
   const db = await getDatabase();
+  const images = (data.images && Array.isArray(data.images))
+    ? data.images.filter(img => typeof img === 'string' && img.trim() !== '').slice(0, 5)
+    : (data.image ? [data.image] : []);
+
   const newProduct: Product = {
     ...data,
-    id: `prod-${Date.now()}`
+    id: `prod-${Date.now()}`,
+    images,
+    image: images[0] || data.image || 'https://images.unsplash.com/photo-1559454403-b8fb88521f11?w=800&auto=format&fit=crop&q=80'
   };
   db.products.unshift(newProduct);
   await saveDatabase(db);
@@ -340,7 +347,22 @@ export async function updateProduct(id: string, data: Partial<Omit<Product, 'id'
   const db = await getDatabase();
   const index = db.products.findIndex(p => p.id === id);
   if (index === -1) return null;
-  db.products[index] = { ...db.products[index], ...data };
+
+  let updatedImages = data.images;
+  if (updatedImages && Array.isArray(updatedImages)) {
+    updatedImages = updatedImages.filter(img => typeof img === 'string' && img.trim() !== '').slice(0, 5);
+  }
+
+  const updatedProduct: Product = {
+    ...db.products[index],
+    ...data,
+    ...(updatedImages !== undefined ? {
+      images: updatedImages,
+      image: (updatedImages.length > 0 ? updatedImages[0] : (data.image || db.products[index].image))
+    } : {})
+  };
+
+  db.products[index] = updatedProduct;
   await saveDatabase(db);
   return db.products[index];
 }

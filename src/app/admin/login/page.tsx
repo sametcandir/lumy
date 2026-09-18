@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
           </div>
           <h1 className="text-2xl font-black text-gray-900 tracking-tight">Lumy Toys Yönetim</h1>
           <p className="text-xs text-gray-500 font-medium">
-            Ürünleri, site metinlerini ve toptan taleplerini yönetmek için giriş yapın.
+            Ürünleri, site metinlerini ve gelen mesajları yönetmek için giriş yapın.
           </p>
         </div>
 

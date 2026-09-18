@@ -28,6 +28,7 @@ export async function PUT(
       ...(body.price !== undefined && { price: body.price === null || body.price === '' ? null : Number(body.price) }),
       ...(body.wholesaleMin !== undefined && { wholesaleMin: body.wholesaleMin === null || body.wholesaleMin === '' ? null : Number(body.wholesaleMin) }),
       ...(body.image !== undefined && { image: body.image }),
+      ...(body.images !== undefined && { images: Array.isArray(body.images) ? body.images : [] }),
       ...(body.description !== undefined && { description: body.description }),
       ...(body.inStock !== undefined && { inStock: Boolean(body.inStock) }),
       ...(body.showStock !== undefined && { showStock: Boolean(body.showStock) }),
