@@ -164,7 +164,7 @@
       "smtpUser": "",
       "smtpPass": ""
     },
-    "logoUrl": "",
+    "logoUrl": "/uploads/pelus-1789736956679.jpg",
     "heroProductId": "prod-1"
   },
   "categories": [
@@ -207,7 +207,8 @@
       "badge": "En Çok Satan",
       "showStock": false,
       "images": [
-        "https://images.unsplash.com/photo-1559454403-b8fb88521f11?w=800&auto=format&fit=crop&q=80"
+        "https://images.unsplash.com/photo-1559454403-b8fb88521f11?w=800&auto=format&fit=crop&q=80",
+        "/uploads/pelus-1789736464957.png"
       ]
     },
     {
