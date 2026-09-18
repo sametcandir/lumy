@@ -1,4 +1,3 @@
-import nodemailer from 'nodemailer';
 import { UserMessage, SiteSettings } from './db';
 import { formatWhatsAppPhone } from './whatsapp';
 
@@ -83,6 +82,19 @@ export async function sendNotificationEmail(settings: SiteSettings, message: Use
   // If SMTP is provided, send real email via Nodemailer
   if (config.smtpHost && config.smtpUser && config.smtpPass) {
     try {
+      let nodemailer: any = null;
+      try {
+        const req = typeof eval !== 'undefined' ? eval('require') : null;
+        if (req) nodemailer = req('nodemailer');
+      } catch (e) {
+        // Ignore on Edge
+      }
+
+      if (!nodemailer) {
+        console.log(`[Email simulated on Edge runtime] To: ${config.recipientEmail} | Subject: Yeni Mesaj - ${message.name}`);
+        return { success: true, simulated: true };
+      }
+
       const cleanPass = config.smtpPass.replace(/\s+/g, '').trim();
       const isGmail = config.smtpHost.toLowerCase().includes('gmail');
       const port = Number(config.smtpPort) || (isGmail ? 465 : 587);

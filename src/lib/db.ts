@@ -1,5 +1,4 @@
-import fs from 'fs';
-import path from 'path';
+import defaultDbData from '../../data/db.json';
 
 export interface WholesaleFeature {
   id: string;
@@ -201,27 +200,8 @@ const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
 const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 const KV_KEY = 'lumy_db';
 
-function getDbFilePath(): string {
-  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
-    const tmpPath = path.join('/tmp', 'db.json');
-    if (!fs.existsSync(tmpPath)) {
-      try {
-        const bundledPath = path.join(process.cwd(), 'data', 'db.json');
-        if (fs.existsSync(bundledPath)) {
-          const content = fs.readFileSync(bundledPath, 'utf-8');
-          fs.writeFileSync(tmpPath, content, 'utf-8');
-        }
-      } catch (e) {
-        console.warn('Could not copy initial db.json to /tmp:', e);
-      }
-    }
-    return tmpPath;
-  }
-  return path.join(process.cwd(), 'data', 'db.json');
-}
-
 export async function getDatabase(): Promise<DatabaseSchema> {
-  // 1. If Vercel KV / Upstash credentials exist, fetch from cloud database
+  // 1. If KV credentials exist, fetch from cloud database
   if (KV_URL && KV_TOKEN) {
     try {
       const res = await fetch(`${KV_URL}/get/${KV_KEY}`, {
@@ -235,39 +215,28 @@ export async function getDatabase(): Promise<DatabaseSchema> {
           memoryDb = parsed as DatabaseSchema;
           return memoryDb;
         }
+      } else {
+        // If KV is empty on first boot, seed it with defaultDbData
+        const initial = JSON.parse(JSON.stringify(defaultDbData)) as DatabaseSchema;
+        memoryDb = initial;
+        await saveDatabase(initial);
+        return memoryDb;
       }
     } catch (kvErr) {
-      console.warn('Failed reading from KV cloud, falling back to local file:', kvErr);
+      console.warn('Failed reading from KV cloud, falling back to local data:', kvErr);
     }
   }
 
-  // 2. Fallback to local file / memory
-  try {
-    const filePath = getDbFilePath();
-    if (fs.existsSync(filePath)) {
-      const data = fs.readFileSync(filePath, 'utf-8');
-      memoryDb = JSON.parse(data) as DatabaseSchema;
-      return memoryDb;
-    }
-    const fallbackPath = path.join(process.cwd(), 'data', 'db.json');
-    if (fs.existsSync(fallbackPath)) {
-      const data = fs.readFileSync(fallbackPath, 'utf-8');
-      memoryDb = JSON.parse(data) as DatabaseSchema;
-      return memoryDb;
-    }
-    if (memoryDb) return memoryDb;
-    throw new Error('Database file not found');
-  } catch (error) {
-    console.error('Error reading database:', error);
-    if (memoryDb) return memoryDb;
-    throw error;
-  }
+  // 2. Fallback to memory or bundled default database
+  if (memoryDb) return memoryDb;
+  memoryDb = JSON.parse(JSON.stringify(defaultDbData)) as DatabaseSchema;
+  return memoryDb;
 }
 
 export async function saveDatabase(db: DatabaseSchema): Promise<void> {
   memoryDb = db;
 
-  // 1. If Vercel KV / Upstash credentials exist, persist to cloud database
+  // 1. If KV credentials exist, persist to cloud database
   if (KV_URL && KV_TOKEN) {
     try {
       await fetch(`${KV_URL}/set/${KV_KEY}`, {
@@ -283,23 +252,6 @@ export async function saveDatabase(db: DatabaseSchema): Promise<void> {
     }
   }
 
-  // 2. Also persist to local file / /tmp as secondary backup
-  try {
-    const filePath = getDbFilePath();
-    const dir = path.dirname(filePath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(filePath, JSON.stringify(db, null, 2), 'utf-8');
-  } catch (error) {
-    console.warn('Direct write failed, attempting /tmp fallback:', error);
-    try {
-      const tmpPath = path.join('/tmp', 'db.json');
-      fs.writeFileSync(tmpPath, JSON.stringify(db, null, 2), 'utf-8');
-    } catch (e) {
-      // Ignored in read-only environment
-    }
-  }
 }
 
 // Site Settings

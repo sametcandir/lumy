@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getMessages, createMessage, getSettings } from '@/lib/db';
 import { sendNotificationEmail } from '@/lib/mail';
 
+export const runtime = 'edge';
+
 export async function GET() {
   try {
     const messages = await getMessages();

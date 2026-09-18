@@ -8,9 +8,9 @@ import ContactSection from '@/components/ContactSection';
 import FloatingWhatsApp from '@/components/FloatingWhatsApp';
 import Footer from '@/components/Footer';
 
-// Force dynamic rendering so edits in the admin panel reflect immediately
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const runtime = 'edge';
 
 export default async function HomePage() {
   const settings = await getSettings();
