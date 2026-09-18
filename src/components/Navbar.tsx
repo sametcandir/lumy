@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { SiteSettings } from '@/lib/db';
 import { formatWhatsAppPhone } from '@/lib/whatsapp';
-import { MessageCircle, Menu, X, Sparkles, ShieldCheck, Lock } from 'lucide-react';
+import { MessageCircle, Menu, X, Sparkles, ShieldCheck, Sliders } from 'lucide-react';
 
 interface NavbarProps {
   settings: SiteSettings;
@@ -82,10 +82,10 @@ export default function Navbar({ settings }: NavbarProps) {
           <div className="hidden sm:flex items-center gap-3">
             <Link
               href="/admin"
-              className="text-gray-500 hover:text-gray-900 p-2.5 rounded-xl hover:bg-amber-50 transition-colors flex items-center gap-1.5 text-xs font-semibold"
+              className="text-gray-600 hover:text-gray-900 p-2.5 rounded-xl hover:bg-amber-50 transition-colors flex items-center gap-1.5 text-xs font-semibold"
               title="Yönetim Paneli"
             >
-              <Lock className="w-4 h-4 text-amber-600" />
+              <Sliders className="w-4 h-4 text-amber-600" />
               <span className="hidden xl:inline">Yönetim</span>
             </Link>
 
@@ -161,8 +161,8 @@ export default function Navbar({ settings }: NavbarProps) {
               onClick={() => setMobileMenuOpen(false)}
               className="w-full flex items-center justify-center gap-2 bg-amber-50 text-amber-900 font-bold py-2.5 rounded-2xl text-center text-sm border border-amber-200"
             >
-              <Lock className="w-4 h-4 text-amber-700" />
-              <span>Yönetici (Admin) Girişi</span>
+              <Sliders className="w-4 h-4 text-amber-700" />
+              <span>Yönetim Paneli</span>
             </Link>
           </div>
         </div>

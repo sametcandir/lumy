@@ -76,12 +76,7 @@ export default function AdminDashboardPage() {
   const [sendingTestEmail, setSendingTestEmail] = useState(false);
 
   useEffect(() => {
-    // Check local admin token
-    const token = typeof window !== 'undefined' ? localStorage.getItem('lumy_admin_token') : null;
-    if (!token) {
-      router.push('/admin/login');
-      return;
-    }
+    // Doğrudan erişim (şifresiz panel)
     setAuthenticated(true);
     fetchData();
   }, []);
@@ -133,8 +128,7 @@ export default function AdminDashboardPage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('lumy_admin_token');
-    router.push('/admin/login');
+    router.push('/');
   };
 
   // -------------------------------------------------------------
@@ -603,11 +597,11 @@ export default function AdminDashboardPage() {
 
             <button
               onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 p-2 sm:px-3.5 sm:py-2 rounded-xl transition-colors cursor-pointer"
-              title="Çıkış Yap"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 p-2 sm:px-3.5 sm:py-2 rounded-xl transition-colors cursor-pointer"
+              title="Ana Sayfaya Dön"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">Çıkış</span>
+              <span className="hidden md:inline">Çıkış / Ana Sayfa</span>
             </button>
           </div>
         </div>
