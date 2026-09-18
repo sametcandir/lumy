@@ -326,21 +326,37 @@ export default function ProductCatalog({ products, categories, settings }: Produ
 
                     {/* Thumbnail Row (Up to 5 images) */}
                     {modalImages.length > 1 && (
-                      <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                        {modalImages.map((img, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => setActiveImageIndex(idx)}
-                            className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer ${
-                              activeImageIndex === idx
-                                ? 'border-plush-500 ring-2 ring-plush-300 scale-105'
-                                : 'border-gray-200 opacity-60 hover:opacity-100'
-                            }`}
-                          >
-                            <img src={img} alt="" className="w-full h-full object-cover" />
-                          </button>
-                        ))}
+                      <div className="flex items-center gap-2.5 overflow-x-auto pb-1 pt-1">
+                        {modalImages.map((img, idx) => {
+                          const isActive = activeImageIndex === idx;
+                          return (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setActiveImageIndex(idx)}
+                              className={`group relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 cursor-pointer transition-all duration-200 ${
+                                isActive
+                                  ? 'shadow-md ring-2 ring-plush-400/30'
+                                  : 'opacity-65 hover:opacity-100'
+                              }`}
+                              title={`Görsel ${idx + 1}`}
+                            >
+                              <img
+                                src={img}
+                                alt=""
+                                className="w-full h-full object-cover object-center block"
+                              />
+                              {/* Tam oturan kusursuz çerçeve katmanı */}
+                              <div
+                                className={`absolute inset-0 rounded-2xl pointer-events-none transition-colors ${
+                                  isActive
+                                    ? 'border-2 border-plush-500'
+                                    : 'border border-black/10 group-hover:border-black/25'
+                                }`}
+                              />
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
