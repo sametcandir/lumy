@@ -16,8 +16,14 @@ export default function FloatingWhatsApp({ settings }: FloatingWhatsAppProps) {
   return (
     <aside aria-label="WhatsApp İletişim" className="fixed bottom-6 right-6 z-40 flex items-center group">
       {/* Speech bubble */}
-      <div className="hidden sm:block mr-3 bg-white text-gray-800 text-xs font-extrabold px-3.5 py-2 rounded-2xl shadow-lg border border-amber-200 transform group-hover:scale-105 transition-transform duration-200">
-        {settings.floatingWhatsappText || "🧸 Bize WhatsApp'tan Yazın!"}
+      <div
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          color: 'var(--text-main)',
+        }}
+        className="hidden sm:block mr-3 text-xs font-bold px-3.5 py-2 rounded-2xl shadow-lg border border-current/10 transform group-hover:scale-105 transition-transform duration-200"
+      >
+        {settings.floatingWhatsappText || "WhatsApp'tan Danışın"}
       </div>
 
       <a

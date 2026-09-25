@@ -14,6 +14,21 @@ export interface QualityFeature {
   description: string;
 }
 
+export interface ProcessStep {
+  id: string;
+  stepNumber: string;
+  stepLabel: string;
+  description: string;
+  imageUrl: string;
+}
+
+export interface WhyFeature {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+}
+
 export interface StatItem {
   label: string;
   value: string;
@@ -40,7 +55,20 @@ export interface EmailNotificationConfig {
   smtpSecure?: boolean;
 }
 
+export interface ThemeColors {
+  siteBg?: string;          // default: #FAF8F5
+  textColor?: string;       // default: #18181B
+  mutedTextColor?: string;  // default: #71717A
+  cardBg?: string;          // default: #FFFFFF
+  processBg?: string;       // default: #F4F0E8
+  accentColor?: string;     // default: #18181B
+  accentTextColor?: string; // default: #FFFFFF
+  footerBg?: string;        // default: #141414
+  footerTextColor?: string; // default: #D6D3D1
+}
+
 export interface SiteSettings {
+  theme?: ThemeColors;
   brandName: string;
   logoUrl?: string;
   slogan: string;
@@ -148,6 +176,30 @@ export interface SiteSettings {
   // Floating WhatsApp
   floatingWhatsappText?: string;
 
+  // New Editorial Layout Customization Fields (Mockup matching)
+  heroKicker?: string;
+  heroCtaText?: string;
+  heroCtaLink?: string;
+  heroImageUrl?: string;
+
+  processKicker?: string;
+  processTitle?: string;
+  processSubtitle?: string;
+  processCtaText?: string;
+  processSteps?: ProcessStep[];
+
+  productsKicker?: string;
+  productsTitle?: string;
+  productsSubtitle?: string;
+  productsCtaText?: string;
+
+  whyKicker?: string;
+  whyNote?: string;
+  whyImageUrl?: string;
+  whyFeatures?: WhyFeature[];
+
+  footerContactTitle?: string;
+
   // Email Notification
   emailNotification?: EmailNotificationConfig;
 }
@@ -212,6 +264,24 @@ export async function getDatabase(): Promise<DatabaseSchema> {
       if (json && json.result) {
         const parsed = typeof json.result === 'string' ? JSON.parse(json.result) : json.result;
         if (parsed && parsed.settings && parsed.products) {
+          const defaults = JSON.parse(JSON.stringify(defaultDbData)) as DatabaseSchema;
+          parsed.settings = {
+            ...defaults.settings,
+            ...parsed.settings,
+            heroKicker: parsed.settings.heroKicker || defaults.settings.heroKicker,
+            heroTitle:
+              parsed.settings.heroTitle === 'Her Yaşa Neşe Katan Yumuşacık Peluş Dünyası'
+                ? defaults.settings.heroTitle
+                : (parsed.settings.heroTitle || defaults.settings.heroTitle),
+            heroImageUrl: parsed.settings.heroImageUrl || defaults.settings.heroImageUrl,
+            heroCtaText: parsed.settings.heroCtaText || defaults.settings.heroCtaText,
+            processSteps: (parsed.settings.processSteps && parsed.settings.processSteps.length > 0)
+              ? parsed.settings.processSteps
+              : defaults.settings.processSteps,
+            whyFeatures: (parsed.settings.whyFeatures && parsed.settings.whyFeatures.length > 0)
+              ? parsed.settings.whyFeatures
+              : defaults.settings.whyFeatures,
+          };
           memoryDb = parsed as DatabaseSchema;
           return memoryDb;
         }

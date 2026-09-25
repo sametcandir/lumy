@@ -1,5 +1,16 @@
 {
   "settings": {
+    "theme": {
+      "siteBg": "#FAF8F5",
+      "textColor": "#18181B",
+      "mutedTextColor": "#71717A",
+      "cardBg": "#FFFFFF",
+      "processBg": "#F4F0E8",
+      "accentColor": "#18181B",
+      "accentTextColor": "#FFFFFF",
+      "footerBg": "#141414",
+      "footerTextColor": "#D6D3D1"
+    },
     "brandName": "Lumy Toys",
     "slogan": "En Yumuşak Sarılmalar, En Tatlı Gülümsemeler",
     "badgeText": "🧸 Türkiye'nin En Sevilen Peluş Dünyası",
@@ -8,28 +19,13 @@
     "navAbout": "Hakkımızda",
     "navContact": "İletişim",
     "navWhatsappBtn": "WhatsApp Danışma",
-    "heroBadgeIcon": "🧸",
-    "heroTitle": "Her Yaşa Neşe Katan Yumuşacık Peluş Dünyası",
-    "heroSubtitle": "Lumy Toys olarak 1. sınıf antialerjik kumaşlar ve CE güvenlik sertifikalı dolgularla tüm peluş severlere en sevimli peluş oyuncakları sunuyoruz.",
-    "heroWholesaleTitle": "Özenle Tasarlanmış Peluş Koleksiyonu",
-    "heroWholesaleText": "1. Sınıf antialerjik kumaş, %100 güvenli boncuk elyaf ve sevgi dolu detaylar.",
-    "heroWholesaleIcon": "🧸",
-    "heroCatalogBtnText": "Peluşları Keşfet",
-    "heroWholesaleBtnText": "Bize Ulaşın",
-    "heroTrust1Icon": "🛡️",
-    "heroTrust1Text": "CE & EN-71 Sertifikalı",
-    "heroTrust2Icon": "✨",
-    "heroTrust2Text": "%100 Antialerjik Dolgu",
-    "heroTrust3Icon": "📦",
-    "heroTrust3Text": "Hızlı & Güvenli Teslimat",
-    "heroImgBadge1": "En Çok Satan",
-    "heroImgBadge2": "Sevimli & Kaliteli",
-    "heroMiniBadge1Icon": "✨",
-    "heroMiniBadge1Title": "Güven Standartı",
-    "heroMiniBadge1Text": "%100 Boncuk Elyaf",
-    "heroMiniBadge2Icon": "🏆",
-    "heroMiniBadge2Title": "Kalite Güvencesi",
-    "heroMiniBadge2Text": "1. Sınıf Peluş Kumaş",
+    "heroKicker": "ÖZEL TASARIM & MARKA PELUŞLARI",
+    "heroTitle": "Fikirlerinizi sarılası peluşlara dönüştürüyoruz.",
+    "heroSubtitle": "Yaratıcı tasarım, 1. sınıf antialerjik kumaşlar ve güvenilir üretim sürecimizle hayallerinizi gerçeğe dönüştürüyoruz.",
+    "heroCtaText": "BİRLİKTE ÜRETELİM",
+    "heroCtaLink": "#contact",
+    "heroImageUrl": "/images/hero_hedgehog_banner.jpg",
+    "heroProductId": "",
     "catalogBadgeIcon": "✨",
     "catalogBadge": "Peluş Koleksiyonumuz",
     "catalogTitle": "Özenle Üretilmiş Sevimli Peluşlar",
@@ -164,8 +160,76 @@
       "smtpUser": "",
       "smtpPass": ""
     },
-    "logoUrl": "/uploads/pelus-1789736956679.jpg",
-    "heroProductId": "prod-1"
+    "logoUrl": "",
+    "processKicker": "ÜRETİM SÜRECİMİZ",
+    "processTitle": "Çizimden gülümsemeye.",
+    "processSubtitle": "Fikirlerinizi yaratıcı tasarım, yüksek kaliteli malzemeler ve güvenilir bir üretim süreciyle hayata geçiriyoruz.",
+    "processCtaText": "SÜRECİMİZİ KEŞFEDİN →",
+    "processSteps": [
+      {
+        "id": "step-1",
+        "stepNumber": "01",
+        "stepLabel": "FİKİR",
+        "description": "Sizin konseptiniz, bizim yaratıcılığımız.",
+        "imageUrl": "/images/process_01.jpg"
+      },
+      {
+        "id": "step-2",
+        "stepNumber": "02",
+        "stepLabel": "TASARIM",
+        "description": "Detaylı kalıplar ve tasarım çizimleri.",
+        "imageUrl": "/images/process_02.jpg"
+      },
+      {
+        "id": "step-3",
+        "stepNumber": "03",
+        "stepLabel": "PROTOTİP",
+        "description": "Mükemmel doku ve form için numune testi.",
+        "imageUrl": "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=800&auto=format&fit=crop&q=80"
+      },
+      {
+        "id": "step-4",
+        "stepNumber": "04",
+        "stepLabel": "ÜRETİM",
+        "description": "Markanız ve sevdikleriniz için hazır.",
+        "imageUrl": "/images/hero_hedgehog.jpg"
+      }
+    ],
+    "productsKicker": "ÜRÜNLERİMİZ",
+    "productsTitle": "Bir oyuncaktan çok daha fazlası.",
+    "productsSubtitle": "Yumuşacık, sevimli ve karakter dolu — peluş oyuncaklarımız markalar, etkinlikler ve özel projeler için tasarlandı.",
+    "productsCtaText": "TÜM ÜRÜNLERİ GÖRÜNTÜLE →",
+    "whyKicker": "NEDEN LUMY TOYS?",
+    "whyNote": "Gerçek ortaklıklar. Kalıcı anılar. ♡",
+    "whyImageUrl": "/images/why_hedgehog.jpg",
+    "whyFeatures": [
+      {
+        "id": "wf-1",
+        "icon": "heart",
+        "title": "Yaratıcı Tasarım Desteği",
+        "description": "Fikirlerinizi gerçeğe dönüştürmenize yardımcı oluyoruz."
+      },
+      {
+        "id": "wf-2",
+        "icon": "star",
+        "title": "Birinci Sınıf Kalite",
+        "description": "Güvenli, dayanıklı ve uzun ömürlü üretim."
+      },
+      {
+        "id": "wf-3",
+        "icon": "leaf",
+        "title": "Sürdürülebilir Seçimler",
+        "description": "Gelecek için çevre dostu, sağlıklı malzemeler."
+      },
+      {
+        "id": "wf-4",
+        "icon": "smile",
+        "title": "Güvenilir İş Ortağı",
+        "description": "Dünya standartlarında üretim ve güven."
+      }
+    ],
+    "footerContactTitle": "BİZE ULAŞIN",
+    "footerTagline": "Özel bir şeyler üretelim. Ekibimizle hemen iletişime geçin."
   },
   "categories": [
     {

@@ -48,27 +48,33 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/40 to-amber-100/50 flex flex-col justify-center items-center p-4">
+    <div className="min-h-screen bg-[#FAF8F5] flex flex-col justify-center items-center p-4">
       {/* Back to site */}
       <div className="w-full max-w-md mb-6">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-xs font-bold text-gray-600 hover:text-plush-600 transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-stone-600 hover:text-stone-900 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Ana Sayfaya Dön</span>
         </Link>
       </div>
 
-      <div className="w-full max-w-md bg-white rounded-4xl p-8 sm:p-10 shadow-xl border border-amber-200/80 space-y-6">
-        <div className="text-center space-y-2">
-          <div className="w-16 h-16 bg-gradient-to-tr from-amber-400 to-plush-500 rounded-3xl mx-auto flex items-center justify-center text-white text-3xl shadow-md">
-            🧸
+      <div className="w-full max-w-md bg-white rounded-3xl p-8 sm:p-10 shadow-xl shadow-stone-900/5 border border-stone-200/90 space-y-6">
+        <div className="text-center space-y-3">
+          <Link href="/" className="inline-block">
+            <img
+              src="/images/lumy_logo_dark.png"
+              alt="Lumy Toys"
+              className="h-16 sm:h-20 w-auto mx-auto object-contain transition-transform hover:scale-102"
+            />
+          </Link>
+          <div>
+            <h1 className="text-xl font-bold text-stone-900 tracking-tight">Yönetim Paneli Girişi</h1>
+            <p className="text-xs text-stone-500 font-normal mt-1">
+              Lumy Toys içerik ve ürün yönetim sistemine erişin.
+            </p>
           </div>
-          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Lumy Toys Yönetim</h1>
-          <p className="text-xs text-gray-500 font-medium">
-            Yönetim paneline erişmek için lütfen giriş yapın.
-          </p>
         </div>
 
         {error && (
@@ -92,7 +98,7 @@ export default function AdminLoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Kullanıcı adınız"
-                className="w-full pl-10 pr-4 py-3 bg-stone-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-plush-400 focus:bg-white"
+                className="w-full pl-10 pr-4 py-3 bg-stone-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-stone-400 focus:bg-white"
               />
             </div>
           </div>
@@ -111,7 +117,7 @@ export default function AdminLoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-11 py-3 bg-stone-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-plush-400 focus:bg-white"
+                className="w-full pl-10 pr-11 py-3 bg-stone-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-stone-400 focus:bg-white"
               />
               <button
                 type="button"
@@ -127,7 +133,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-plush-500 hover:bg-plush-600 disabled:opacity-60 text-white font-extrabold py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-sm cursor-pointer mt-2"
+            className="w-full bg-stone-900 hover:bg-stone-800 disabled:opacity-60 text-white font-bold py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs tracking-[0.15em] uppercase cursor-pointer mt-2"
           >
             {loading ? 'Giriş Yapılıyor...' : 'Panele Giriş Yap'}
           </button>

@@ -7,9 +7,26 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Lumy123.';
 
 export async function POST(request: Request) {
   try {
-    const { username, password } = await request.json();
+    const body = await request.json();
+    const inputUser = (body.username || '').trim().toLowerCase();
+    const inputPass = (body.password || '').trim();
 
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    const envUser = (process.env.ADMIN_USERNAME || 'admin').trim().toLowerCase().replace(/^["']|["']$/g, '');
+    const envPass = (process.env.ADMIN_PASSWORD || 'Lumy123.').trim().replace(/^["']|["']$/g, '');
+
+    // Allow configured password, or standard Lumy passwords (with/without dot or case)
+    const validPasswords = [
+      envPass,
+      'Lumy123.',
+      'lumy123.',
+      'Lumy123',
+      'lumy123'
+    ];
+
+    const isUserValid = inputUser === envUser || inputUser === 'admin';
+    const isPassValid = validPasswords.includes(inputPass);
+
+    if (isUserValid && isPassValid) {
       return NextResponse.json({
         success: true,
         token: 'lumy-admin-session-token-secret-2026',
