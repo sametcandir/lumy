@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, ArrowLeft, User, Eye, EyeOff } from 'lucide-react';
+import { Lock, ArrowLeft, User, Eye, EyeOff, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminLoginPage() {
@@ -11,6 +11,7 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isLocked, setIsLocked] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -23,6 +24,8 @@ export default function AdminLoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLocked) return;
+
     setLoading(true);
     setError('');
 
@@ -38,6 +41,9 @@ export default function AdminLoginPage() {
         localStorage.setItem('lumy_admin_token', data.token);
         router.push('/admin');
       } else {
+        if (data.locked || res.status === 429) {
+          setIsLocked(true);
+        }
         setError(data.error || 'Hatalı kullanıcı adı veya şifre!');
       }
     } catch (err: any) {
@@ -78,8 +84,18 @@ export default function AdminLoginPage() {
         </div>
 
         {error && (
-          <div className="p-3.5 bg-red-50 text-red-700 text-xs font-bold rounded-2xl border border-red-200 text-center">
-            {error}
+          <div
+            className={`p-4 rounded-2xl border text-xs font-medium flex items-start gap-3 ${
+              isLocked
+                ? 'bg-rose-50 text-rose-800 border-rose-200'
+                : 'bg-red-50 text-red-700 border-red-200'
+            }`}
+          >
+            {isLocked && <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />}
+            <div className="flex-1 leading-relaxed">
+              <span className="font-bold block">{isLocked ? 'Güvenlik Kilidi Aktif' : 'Hatalı Giriş'}</span>
+              <span>{error}</span>
+            </div>
           </div>
         )}
 
@@ -95,10 +111,11 @@ export default function AdminLoginPage() {
               <input
                 type="text"
                 required
+                disabled={loading || isLocked}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Kullanıcı adınız"
-                className="w-full pl-10 pr-4 py-3 bg-stone-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-stone-400 focus:bg-white"
+                className="w-full pl-10 pr-4 py-3 bg-stone-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-stone-400 focus:bg-white disabled:opacity-50 disabled:bg-stone-100 disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -114,15 +131,17 @@ export default function AdminLoginPage() {
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
+                disabled={loading || isLocked}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-11 py-3 bg-stone-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-stone-400 focus:bg-white"
+                className="w-full pl-10 pr-11 py-3 bg-stone-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-stone-400 focus:bg-white disabled:opacity-50 disabled:bg-stone-100 disabled:cursor-not-allowed"
               />
               <button
                 type="button"
+                disabled={loading || isLocked}
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer"
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer disabled:cursor-not-allowed"
                 title={showPassword ? 'Şifreyi Gizle' : 'Şifreyi Göster'}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -132,17 +151,27 @@ export default function AdminLoginPage() {
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-stone-900 hover:bg-stone-800 disabled:opacity-60 text-white font-bold py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs tracking-[0.15em] uppercase cursor-pointer mt-2"
+            disabled={loading || isLocked}
+            className="w-full bg-stone-900 hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs tracking-[0.15em] uppercase cursor-pointer mt-2 flex items-center justify-center gap-2"
           >
-            {loading ? 'Giriş Yapılıyor...' : 'Panele Giriş Yap'}
+            {isLocked ? (
+              <>
+                <ShieldAlert className="w-4 h-4 text-rose-400" />
+                <span>Erişim Engellendi (Kilitli)</span>
+              </>
+            ) : loading ? (
+              'Giriş Yapılıyor...'
+            ) : (
+              'Panele Giriş Yap'
+            )}
           </button>
         </form>
 
-        <div className="text-center pt-2">
-          <span className="text-[11px] text-gray-400 font-medium">
-            Lumy Toys Yönetim Sistemi
-          </span>
+        <div className="pt-2 text-center border-t border-stone-100">
+          <div className="inline-flex items-center gap-1.5 text-[11px] text-emerald-700 bg-emerald-50/80 px-2.5 py-1 rounded-full border border-emerald-100 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Brute-force & Rate Limit Koruması Aktif</span>
+          </div>
         </div>
       </div>
     </div>
