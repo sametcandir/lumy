@@ -1,5 +1,7 @@
-import React from 'react';
-import { getSettings, getProducts, getCategories } from '@/lib/db';
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import defaultDbData from '../../data/db.json';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import ProcessSection from '@/components/ProcessSection';
@@ -8,21 +10,30 @@ import WhyLumySection from '@/components/WhyLumySection';
 import FloatingWhatsApp from '@/components/FloatingWhatsApp';
 import Footer from '@/components/Footer';
 
-export const runtime = 'edge';
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export default function HomePage() {
+  const [settings, setSettings] = useState<any>(defaultDbData.settings);
+  const [products, setProducts] = useState<any[]>(defaultDbData.products);
+  const [categories, setCategories] = useState<any[]>(defaultDbData.categories);
 
-export default async function HomePage() {
-  const settings = await getSettings();
-  const products = await getProducts();
-  const categories = await getCategories();
+  useEffect(() => {
+    // Canlı veritabanındaki güncel verileri çek
+    Promise.all([
+      fetch('/api/settings').then(r => r.json()).catch(() => null),
+      fetch('/api/products').then(r => r.json()).catch(() => null),
+      fetch('/api/categories').then(r => r.json()).catch(() => null),
+    ]).then(([settRes, prodRes, catRes]) => {
+      if (settRes?.success && settRes.data) setSettings(settRes.data);
+      if (prodRes?.success && prodRes.data) setProducts(prodRes.data);
+      if (catRes?.success && catRes.data) setCategories(catRes.data);
+    });
+  }, []);
 
   // Find featured hero product if configured
-  const heroProduct = settings.heroProductId
+  const heroProduct = settings?.heroProductId
     ? products.find((p) => p.id === settings.heroProductId) || null
     : null;
 
-  const theme = settings.theme || {};
+  const theme = settings?.theme || {};
   const siteBg = theme.siteBg || '#FAF8F5';
   const textColor = theme.textColor || '#18181B';
   const mutedTextColor = theme.mutedTextColor || '#71717A';
