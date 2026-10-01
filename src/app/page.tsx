@@ -7,7 +7,7 @@ import Hero from '@/components/Hero';
 import ProcessSection from '@/components/ProcessSection';
 import ProductCatalog from '@/components/ProductCatalog';
 import WhyLumySection from '@/components/WhyLumySection';
-import FloatingWhatsApp from '@/components/FloatingWhatsApp';
+
 import Footer from '@/components/Footer';
 
 export default function HomePage() {
@@ -89,8 +89,7 @@ export default function HomePage() {
         {/* 6. Contact & Luxury Dark Footer with Peeking Fox */}
         <Footer settings={settings} />
 
-        {/* 7. Discreet Floating WhatsApp Button */}
-        <FloatingWhatsApp settings={settings} />
+        
       </main>
     </>
   );
